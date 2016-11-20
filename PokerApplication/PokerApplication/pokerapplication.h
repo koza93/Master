@@ -3,6 +3,8 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QtSql>
+#include <QTcpSocket>
+
 class PokerApplication : public QObject
 {
 	Q_OBJECT
@@ -14,13 +16,17 @@ public:
 	Q_INVOKABLE void webChannelTest(QString text);
 	Q_INVOKABLE int webChannelTest();
 	Q_INVOKABLE bool checkUserAndPassword(QString usr, QString psd);
+	Q_INVOKABLE bool joinTable();
 
 private:
 	Q_INVOKABLE bool AcquireConnectionDb();
 	Q_INVOKABLE bool validateUserAndPassword(QString usr, QString psd);
+	Q_INVOKABLE bool connectToServer();
 
 	QSqlDatabase db;
 	QString currentUsername = "";
+	bool isUserLoggedIn = false;
+	QTcpSocket *socket;
 
 };
 

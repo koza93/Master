@@ -1,0 +1,16 @@
+body {
+    background-color: lightblue;
+}
+
+div {
+    color: navy;
+    /*margin-left: 20px;*/
+}
+
+.login{
+    visibility: visible;
+}
+
+.joinTable{
+    visibility: hidden;
+}

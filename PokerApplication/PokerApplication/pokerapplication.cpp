@@ -8,7 +8,7 @@ PokerApplication::PokerApplication()
 
 PokerApplication::~PokerApplication()
 {
-
+	socket->close();
 }
 
 bool PokerApplication::ConnectToDb() 
@@ -47,16 +47,54 @@ Q_INVOKABLE bool PokerApplication::checkUserAndPassword(QString usr, QString psd
 Q_INVOKABLE bool PokerApplication::validateUserAndPassword(QString usr, QString psd)
 {
 	QSqlQuery query;
-	if (query.exec(""))
+	if (query.exec("SELECT * FROM poker_database.users WHERE user = '"+ usr +"' and password = '"+ psd +" '"))
 	{
-
+		while (query.next())
+		{
+			qDebug() << "valid user name and password for user:" +query.value(1).toString();
+			isUserLoggedIn = true;
+			currentUsername = usr;
+			return true;
+		}
+		qDebug() << "invalid user name and password";
+		return false;
+		
 	}
 	else
 	{
-
+		qDebug() << "invalid user name and password";
 	}
-	qDebug() << "attempted u+p validation";
+	return false;
 }
+
+Q_INVOKABLE bool PokerApplication::joinTable()
+{
+	if (connectToServer()) {
+		qDebug() << "connected to server";
+		return true;
+	}
+
+	return false;
+}
+
+Q_INVOKABLE bool PokerApplication::connectToServer()
+{
+	socket = new QTcpSocket(this);
+
+	socket->connectToHost("localhost", 1234);
+	if (socket->waitForConnected(2000))
+	{
+		qDebug() << "Connected to host";
+		return true;
+	}
+	else
+	{
+		qDebug() << "cannot connect to host";
+	}
+
+	return false;
+}
+
 void PokerApplication::webChannelTest(QString text)
 {
 	qDebug() << "The text i receive is:" << text;
