@@ -41,7 +41,10 @@ $(document).ready(function () {
                 $("#userNameLabel").css("visibility","hidden");
             }
         });
+
     });
+
+    
     // jQuery methods go here...
 
 });

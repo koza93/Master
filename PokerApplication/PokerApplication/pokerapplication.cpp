@@ -18,8 +18,6 @@ bool PokerApplication::ConnectToDb()
 
 		return true;
 	}
-	
-
 	return false;
 }
 
@@ -85,6 +83,9 @@ Q_INVOKABLE bool PokerApplication::connectToServer()
 	if (socket->waitForConnected(2000))
 	{
 		qDebug() << "Connected to host";
+		socket->write("WhoAmI");
+		connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()), Qt::DirectConnection);
+		connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()), Qt::DirectConnection);
 		return true;
 	}
 	else
@@ -92,6 +93,7 @@ Q_INVOKABLE bool PokerApplication::connectToServer()
 		qDebug() << "cannot connect to host";
 	}
 
+	
 	return false;
 }
 
@@ -102,4 +104,42 @@ void PokerApplication::webChannelTest(QString text)
 int PokerApplication::webChannelTest()
 {
 	return 10;
+}
+
+void PokerApplication::readyRead()
+{	
+	QByteArray Data = socket->readAll();
+	QString dataString = Data;
+	qDebug() << "Message from server is: " + Data;
+	QStringList dataList = dataString.split(':');
+	if (dataList.length() > 1)
+	{
+		if (dataList[0] == "Thread")
+		{
+			myClientNumber = dataList[1].toInt();
+			qDebug() <<myClientNumber;
+		}	
+	}	
+	if (dataList.length() > 2) {
+		if (dataList[0] == "GameStarted") {
+			qDebug() << "GameStarted";
+			isGameStarted = true;
+			numberOfPlayers = dataList[1].toInt();
+			if (dataList[2] == (QString)myClientNumber) {
+				isMyTurn = true;
+				qDebug("My turn");
+			}
+			else {
+				isMyTurn = false;
+				qDebug("Not my turn");
+			}
+		}
+	}
+}
+
+void PokerApplication::disconnected()
+{
+	qDebug() << "Client disconnected:" ;
+	socket->deleteLater();
+	exit(0);
 }
