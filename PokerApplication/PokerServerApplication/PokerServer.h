@@ -1,7 +1,6 @@
 #ifndef POKERSERVER_H
 #define POKERSERVER_H
 #include "ServerThread.h"
-#include "GameThread.h"
 #include <QThread>
 #include <QDebug>
 #include <QTcpServer>
@@ -13,7 +12,6 @@ class PokerServer : public QTcpServer
 
 public:
 	ServerThread *thread;
-	GameThread * gameThread;
 	//QList<ServerThread*> clientThreads;
 	explicit PokerServer(QObject * parent = 0);
 	void StartServer();
@@ -22,15 +20,15 @@ signals:
 	void updateNoClients(int num);
 	//void someSignal();
 	//void mSignal();
-public slots :
+	public slots :
 	//void mySlot();
-private slots :
+	private slots :
 
 private:
 	int numberOfClients = 0;
 protected:
 	void incomingConnection(qintptr  socketDescriptor);
-	
+
 };
 
 #endif // POKERSERVER_H

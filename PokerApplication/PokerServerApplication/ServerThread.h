@@ -4,6 +4,8 @@
 #include <QThread>
 #include <QTcpSocket>
 #include <QDebug>
+#include <QTime>
+#include <QCoreApplication>
 
 
 class ServerThread : public QThread
@@ -13,17 +15,18 @@ class ServerThread : public QThread
 public:
 	explicit ServerThread(int ID, QObject * parent = 0);
 	void run();
+	void delay(int);
 	//GameThread *gThread;
 signals:
 	void error(QTcpSocket::SocketError error);
-	void sendMessageSig();
-public slots :
+	//void sendMessageSig();
+	public slots :
 	void readyRead();
 	void disconnected();
 	void sendMessage();
 	void updateNumberClients(int num);
-	
-private slots :
+
+	private slots :
 
 private:
 	QTcpSocket *socket;
