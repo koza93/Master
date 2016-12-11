@@ -23,8 +23,9 @@ signals:
 	public slots :
 	void readyRead();
 	void disconnected();
-	void sendMessage();
+	void sendMessage(QString msg);
 	void updateNumberClients(int num);
+	void updateCurrentPlayer(int num);
 
 	private slots :
 
@@ -32,6 +33,7 @@ private:
 	QTcpSocket *socket;
 	int socketDescriptor;
 	int numberOfClients = 0;
+	int currentPlayer = 0;
 };
 
 #endif // SERVERTHREAD_H

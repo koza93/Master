@@ -16,7 +16,9 @@ public:
 	explicit PokerServer(QObject * parent = 0);
 	void StartServer();
 	void delay(int);
+	int currentPlayer = 0;
 signals:
+	void updateCurrentPlayer(int num);
 	void updateNoClients(int num);
 	//void someSignal();
 	//void mSignal();

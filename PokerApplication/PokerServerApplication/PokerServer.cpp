@@ -36,15 +36,22 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	//clientThreads.append(thread);
 	connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
 	connect(this, SIGNAL(updateNoClients(int)), thread, SLOT(updateNumberClients(int)), Qt::QueuedConnection);
+	connect(this, SIGNAL(updateCurrentPlayer(int)), thread, SLOT(updateCurrentPlayer(int)), Qt::QueuedConnection);
 	
 	qDebug() << "main" << QThread::currentThreadId();
 	thread->start();
 	numberOfClients++;
+	if (numberOfClients == 1)
+	{
+		currentPlayer = socketDescriptor;
+		qDebug() << "First player is:" << currentPlayer;
+	}
 	if (numberOfClients > 0)
 	{
 		qDebug() << "Emmiting signal from poker server";
 
 		emit updateNoClients(numberOfClients);
+		emit updateCurrentPlayer(currentPlayer);
 	}
 
 	//emit updateNoClients(numberOfClients);

@@ -11,6 +11,8 @@ class PokerApplication : public QObject
 	Q_INVOKABLE
 
 signals :
+	void notifyOnTurn(bool);  //notify js
+	void notifyOnGameStarted(bool); //notify js
 	void error(QTcpSocket::SocketError error);
 public slots :
 	void readyRead();
@@ -25,6 +27,7 @@ public:
 	Q_INVOKABLE int webChannelTest();
 	Q_INVOKABLE bool checkUserAndPassword(QString usr, QString psd); //check for user name and password called form js
 	Q_INVOKABLE bool joinTable(); //try to join table called from js
+	Q_INVOKABLE int getNumberOfPlayers(); //return number of players for js
 
 private:
 	Q_INVOKABLE bool AcquireConnectionDb(); //acquires connection to db

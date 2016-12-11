@@ -34,7 +34,10 @@ void ServerThread::run()
 
 	}
 	delay(1000);
-	sendMessage();
+	
+	QString StartGameMsg = "GameStarted:"+ QString::number(numberOfClients) + ":" + QString::number(currentPlayer);
+	qDebug()<< StartGameMsg;
+	sendMessage(StartGameMsg);
 	exec();
 }
 
@@ -60,24 +63,30 @@ void ServerThread::disconnected()
 	exit(0);
 }
 
-void ServerThread::sendMessage() {
+void ServerThread::sendMessage(QString msg) {
 	QByteArray threadNumber = QByteArray::number(this->socketDescriptor, 10);
-
-	qDebug() << "Message from: " << this->socketDescriptor << ";;" << socket->socketDescriptor();
-	//socket->setParent(this);
 	
+	qDebug() << "Message from: " << this->socketDescriptor << ";;" << socket->socketDescriptor() << "The msg: " <<msg;
+	//socket->setParent(this);
+	QByteArray message = msg.toStdString().c_str();
 	//QByteArray Data = socket->readAll();
-	socket->write("Hello:"+ threadNumber);
+	socket->write(message);
 
 }
 void ServerThread::updateNumberClients(int num) {
 	numberOfClients = num;
 	qDebug() << "numClients" << QThread::currentThreadId();
 	qDebug() << "Thread:" << this->socketDescriptor << "Number of clients: " << numberOfClients;
-	if (numberOfClients > 0)
-	{
-		//emit sendMessage();
-	}
+	//if (numberOfClients > 0)
+	//{
+	//	//emit sendMessage();
+	//}
+}
+void ServerThread::updateCurrentPlayer(int num) {
+	currentPlayer = num;
+	qDebug() << "numClients" << QThread::currentThreadId();
+	qDebug() << "Thread:" << this->socketDescriptor << "Current player: " << currentPlayer;
+	
 }
 
 void ServerThread::delay(int millisecondsToWait)

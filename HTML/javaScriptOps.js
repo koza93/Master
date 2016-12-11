@@ -6,6 +6,45 @@ $(document).ready(function () {
       
 
         pokerOperations.webChannelTest("Created JS Object");
+
+        //notifies whenever myturn
+        pokerOperations.notifyOnTurn.connect(function (returnValue) {
+            if (returnValue === true) {
+            }
+        });
+        //notifies whenever myturn
+        pokerOperations.notifyOnGameStarted.connect(function (returnValue) {
+            if (returnValue === true) {
+                $(".theGameplay").css("visibility", "visible");
+                //to set timeout
+                var numOfPlayers;
+                pokerOperations.getNumberOfPlayers(function (returnValue) {
+                    numOfPlayers = returnValue;
+
+                    //show players connected
+                    $("#seatTaken6").css("visibility", "visible");
+                    for (var i = 1; i < numOfPlayers; i++) {
+
+                        var seat = "#seatTaken" + i;
+                        $(seat).css("visibility", "visible");
+                    }
+                    //show backcards
+                    for (var i = 1; i <= 5; i++) {
+                        (function (index) {
+                            setTimeout(function () {
+                                var cards = "#card" + index;
+                                $(cards).css("visibility", "visible");
+                            }, i * 200);
+                        })(i);
+                    }
+                    alert("Game Started");
+                    
+                    
+
+                });
+                
+            }
+        });
     });
 
     $("#loginBtn").click(function () {
@@ -36,15 +75,18 @@ $(document).ready(function () {
 
             if (isTableJoined === true) {
                 //pokerOperations.webChannelTest("valid password");
-       
+                
                 $(".joinTable").css("visibility", "hidden");
-                $("#userNameLabel").css("visibility","hidden");
+                $("#userNameLabel").css("visibility", "hidden");
+                $(".theTable").css("visibility", "visible");
+                alert("joined Table waiting for players");
+
             }
         });
 
     });
-
-    
+   
+   
     // jQuery methods go here...
 
 });

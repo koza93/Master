@@ -1,5 +1,9 @@
 body {
     background-color: lightblue;
+    position: fixed;
+    width: 200vw;
+    height: 150vh;
+
 }
 
 div {
@@ -8,9 +12,126 @@ div {
 }
 
 .login{
-    visibility: visible;
+    visibility: visible;/*visiblr by default*/
 }
 
 .joinTable{
-    visibility: hidden;
+    visibility: hidden;/*hidden by default*/
+}
+
+.theTable{
+   
+    margin-left: 18vw;
+    top: 15vh;
+    position: absolute;
+    visibility:hidden;/*hidden by default*/
+    
+}
+
+#seat1{
+    margin-left: -10vw;
+    top: 20vh;
+    position:absolute;
+}
+#seat2{
+    margin-left: 0vw;
+    top: -4vh;
+    position:absolute;
+}
+#seat3{
+    margin-left: 25vw;
+    top: -12vh;
+    position:absolute;
+}
+#seat4{
+    margin-left: 50vw;
+    top: -4vh;
+    position:absolute;
+}
+#seat5{
+    margin-left: 60vw;
+    top: 20vh;
+    position:absolute;
+}
+#seat6{
+    margin-left: 27vw;
+    top: 58vh;
+    position:absolute;
+}
+
+.theGameplay{
+    width:480px;
+    height:350px;
+    margin-left: 18vw;
+    top: 15vh;
+    position: absolute;
+    visibility:hidden;/*hidden by default*/
+}
+
+#card1{
+    margin-left: 8vw;
+    top: 19vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+#card2{
+    margin-left: 17vw;
+    top: 19vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+#card3{
+    margin-left: 26vw;
+    top: 19vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+#card4{
+    margin-left: 35vw;
+    top: 19vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+#card5{
+    margin-left: 44vw;
+    top: 19vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+
+#seatTaken1{
+    margin-left: -10vw;
+    top: 20vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+#seatTaken2{
+    margin-left: 0vw;
+    top: -4vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+#seatTaken3{
+    margin-left: 25vw;
+    top: -12vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+#seatTaken4{
+    margin-left: 50vw;
+    top: -4vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+#seatTaken5{
+    margin-left: 60vw;
+    top: 20vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+#seatTaken6{
+    margin-left: 27vw;
+    top: 58vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
 }

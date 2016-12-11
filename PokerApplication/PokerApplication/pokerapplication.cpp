@@ -124,9 +124,11 @@ void PokerApplication::readyRead()
 		if (dataList[0] == "GameStarted") {
 			qDebug() << "GameStarted";
 			isGameStarted = true;
-			numberOfPlayers = dataList[1].toInt();
-			if (dataList[2] == (QString)myClientNumber) {
+			numberOfPlayers = dataList[1].toInt(); //note to self: first update numofplayers then notify about game
+			notifyOnGameStarted(isGameStarted);
+			if (dataList[2] == QString::number(myClientNumber)) {
 				isMyTurn = true;
+				notifyOnTurn(isMyTurn);
 				qDebug("My turn");
 			}
 			else {
@@ -142,4 +144,8 @@ void PokerApplication::disconnected()
 	qDebug() << "Client disconnected:" ;
 	socket->deleteLater();
 	exit(0);
+}
+int PokerApplication::getNumberOfPlayers()
+{
+	return numberOfPlayers;
 }
