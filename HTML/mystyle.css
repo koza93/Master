@@ -135,3 +135,30 @@ div {
     position:absolute;
     visibility:hidden;/*hidden by default*/
 }
+
+.theBetting{
+   
+    margin-left:60vw;
+    top: 80vh;
+    width:200px;
+    height:60px;
+    position: absolute;
+    visibility:hidden;/*hidden by default*/
+    border: dashed black 2px;
+    
+}
+#foldButton{
+    margin-left: 2vw;
+    top:0;
+}
+
+#checkButton{
+    margin-left: 0vw;
+    top:0;
+}
+
+#raiseButton{
+    margin-left: 2vw;
+    top:0;
+}
+

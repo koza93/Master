@@ -119,6 +119,19 @@ void PokerApplication::readyRead()
 			myClientNumber = dataList[1].toInt();
 			qDebug() <<myClientNumber;
 		}	
+		if (dataList[0] == "ChangeTurn")
+		{
+			if (dataList[1] == QString::number(myClientNumber)) {
+				isMyTurn = true;
+				notifyOnTurn(isMyTurn);
+				qDebug("My turn");
+			}
+			else {
+				isMyTurn = false;
+				notifyOnTurn(isMyTurn);
+				qDebug("Not my turn");
+			}
+		}
 	}	
 	if (dataList.length() > 2) {
 		if (dataList[0] == "GameStarted") {
@@ -137,6 +150,7 @@ void PokerApplication::readyRead()
 			}
 		}
 	}
+	
 }
 
 void PokerApplication::disconnected()
@@ -148,4 +162,22 @@ void PokerApplication::disconnected()
 int PokerApplication::getNumberOfPlayers()
 {
 	return numberOfPlayers;
+}
+
+void PokerApplication::sendCheckButtonClicked() {
+	QString msg = "Check:"+ QString::number(myClientNumber);
+	QByteArray message = msg.toStdString().c_str();
+	qDebug() << msg;
+	socket->write(message);
+}
+
+void PokerApplication::sendRaiseButtonClicked() {
+	QString msg = "Raise:" + QString::number(myClientNumber);
+	QByteArray message = msg.toStdString().c_str();
+	socket->write(message);
+}
+void PokerApplication::sendFoldButtonClicked() {
+	QString msg = "Fold:" + QString::number(myClientNumber);
+	QByteArray message = msg.toStdString().c_str();
+	socket->write(message);
 }

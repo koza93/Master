@@ -10,6 +10,10 @@ $(document).ready(function () {
         //notifies whenever myturn
         pokerOperations.notifyOnTurn.connect(function (returnValue) {
             if (returnValue === true) {
+                $(".theBetting").css("visibility", "visible");
+            }
+            else if (returnValue === false) {
+                $(".theBetting").css("visibility", "hidden");
             }
         });
         //notifies whenever myturn
@@ -83,6 +87,12 @@ $(document).ready(function () {
 
             }
         });
+
+    });
+    $("#checkButton").click(function () {
+        //$("p").hide();
+        pokerOperations.sendCheckButtonClicked();
+            
 
     });
    
