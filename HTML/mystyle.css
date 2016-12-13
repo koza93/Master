@@ -60,8 +60,8 @@ div {
 }
 
 .theGameplay{
-    width:480px;
-    height:350px;
+    width:60vw;
+    height:56vh;
     margin-left: 18vw;
     top: 15vh;
     position: absolute;
@@ -140,8 +140,8 @@ div {
    
     margin-left:60vw;
     top: 80vh;
-    width:200px;
-    height:60px;
+    width:30vw;
+    height:10vh;
     position: absolute;
     visibility:hidden;/*hidden by default*/
     border: dashed black 2px;
