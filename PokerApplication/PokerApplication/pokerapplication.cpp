@@ -172,8 +172,9 @@ void PokerApplication::sendCheckButtonClicked() {
 }
 
 void PokerApplication::sendRaiseButtonClicked() {
-	QString msg = "Raise:" + QString::number(myClientNumber);
+	QString msg = "Raise:" + QString::number(myClientNumber) +":50" ;   //note hardcoded 50 raise for now - change when i have actual gui code written
 	QByteArray message = msg.toStdString().c_str();
+	qDebug() << msg;
 	socket->write(message);
 }
 void PokerApplication::sendFoldButtonClicked() {

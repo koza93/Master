@@ -17,11 +17,12 @@ public:
 	explicit ServerThread(int ID, QObject * parent = 0);
 	void run();
 	void delay(int);
-	void aFunction();
+	//void aFunction();
 	//GameThread *gThread;
 signals:
 	void doSignal();								//semi-dummy signal to invoke messages (hopegully will solve problem with calling functions)	
 	void notifyOnBet();								//notifies pokers server that bet was made so it increments current player and emits it back
+	void notifyOnRaise(int,int);
 	void error(QTcpSocket::SocketError error);
 	//void sendMessageSig();
 	public slots :
@@ -30,8 +31,10 @@ signals:
 	void disconnected();
 	void sendMessage(QString msg);
 	void updateBetMade();
+	void updateRaiseMade(int, int);
 	void updateNumberClients(int num);
 	void updateCurrentPlayer(int num);
+	void changeGameStage(int gameStage);
 
 	private slots :
 
@@ -40,9 +43,17 @@ private:
 	int socketDescriptor;
 	int numberOfClients = 0;
 	int currentPlayer = 0;
+	int previousPlayer = 0;
+	int betAmount = 0;
 	bool betMade = false;
+	bool betRaised = false;
+	bool betFolded = false;
 	bool isGameFinished = false;
+	bool isPreFlopFinished = false;
 	bool isFlopFinished = false;
+	bool isTurnFinished = false;
+	bool isRiverFinished = false;
+	
 };
 
 #endif // SERVERTHREAD_H

@@ -37,9 +37,12 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
 	connect(this, SIGNAL(updateNoClients(int)), thread, SLOT(updateNumberClients(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCurrentPlayer(int)), thread, SLOT(updateCurrentPlayer(int)), Qt::QueuedConnection);
+	connect(this, SIGNAL(changeGameStage(int)), thread, SLOT(changeGameStage(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateBetMade()), thread, SLOT(updateBetMade()), Qt::QueuedConnection);
+	connect(this, SIGNAL(updateRaiseMade(int,int)), thread, SLOT(updateRaiseMade(int, int)), Qt::QueuedConnection);
 	connect(thread, SIGNAL(notifyOnBet()), this, SLOT(incrementCurrentPlayer()), Qt::QueuedConnection); // signal commes from socketThread noteToSelf: this solves my issue of communicating back from the thread
 	connect(thread, SIGNAL(notifyOnBet()), this, SLOT(detectBetWasMade()), Qt::QueuedConnection);
+	connect(thread, SIGNAL(notifyOnRaise(int,int)), this, SLOT(detectRaiseWasMade(int,int)), Qt::QueuedConnection);
 	qDebug() << "main" << QThread::currentThreadId();
 	thread->start();
 	listOfPlayers.append(socketDescriptor);
@@ -77,9 +80,22 @@ void PokerServer::incrementCurrentPlayer()
 	if (globalI >= numberOfClients)
 	{
 		globalI = 0;
+		globalGameStage++;
+		qDebug()<<"trololololo";
 	}
 	currentPlayer = listOfPlayers[globalI];
 	emit updateCurrentPlayer(currentPlayer);
+	if (globalI == 0)
+	{
+		emit changeGameStage(globalGameStage);
+		qDebug()<<"Traallalala";
+	}
+}
+
+void PokerServer::detectRaiseWasMade(int socketDescriptor, int amountRaised)
+{
+	emit updateRaiseMade(socketDescriptor, amountRaised);
+
 }
 void PokerServer::detectBetWasMade()
 {

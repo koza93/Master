@@ -46,6 +46,9 @@ private:
 	bool isGameStarted = false;											//will be received from server 
 	bool isMyTurn = false;												//will be received from server 
 	int numberOfPlayers = 0;											//will be recieved from server
+	int myTotalChips = 0;
+	int totalPot = 0;
+	int currentBet = 0;
 };
 
 #endif // POKERAPPLICATION_H

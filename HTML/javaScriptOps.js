@@ -95,6 +95,20 @@ $(document).ready(function () {
             
 
     });
+
+    $("#raiseButton").click(function () {
+        //$("p").hide();
+        pokerOperations.sendRaiseButtonClicked();
+
+
+    });
+
+    $("#foldButton").click(function () {
+        //$("p").hide();
+        pokerOperations.sendFoldButtonClicked();
+
+
+    });
    
    
     // jQuery methods go here...

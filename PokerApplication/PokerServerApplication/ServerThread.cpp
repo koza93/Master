@@ -31,7 +31,7 @@ void ServerThread::run()
 
 	qDebug() << "Client connected:" << this->socketDescriptor;
 
-	while (numberOfClients < 3)
+	while (numberOfClients < 2)
 	{
 
 	}
@@ -45,21 +45,68 @@ void ServerThread::run()
 	//while game is on
 	delay(1000); //delay necessary to accomodate socket data exchange
 	while (!isGameFinished) {
+
+		//while playing pre flop
+		while (!isPreFlopFinished) {
+			delay(500);
+			if (betRaised == true) 
+			{
+				sendMessage("Raise:" + QString::number(previousPlayer));
+				betRaised = false;
+				delay(200);
+			}
+			if (betMade == true) {
+				betMade = false;
+				sendMessage("ChangeTurn:" + QString::number(currentPlayer));
+			}
+		}
+		
 		//while playing flop
 		while (!isFlopFinished) {
 			delay(500);
+			if (betRaised == true)
+			{
+				sendMessage("Raise:" + QString::number(previousPlayer));
+				betRaised = false;
+				delay(200);
+			}
 			if (betMade == true) {
 				betMade = false;
 				sendMessage("ChangeTurn:" + QString::number(currentPlayer));
 			}
 		}
 
+		//while playing turn
+		while (!isTurnFinished) {
+			delay(500);
+			if (betRaised == true)
+			{
+				sendMessage("Raise:" + QString::number(previousPlayer));
+				betRaised = false;
+				delay(200);
+			}
+			if (betMade == true) {
+				betMade = false;
+				sendMessage("ChangeTurn:" + QString::number(currentPlayer));
+			}
+		}
+
+		//while playing river
+		while (!isRiverFinished) {
+			delay(500);
+			if (betRaised == true)
+			{
+				sendMessage("Raise:" + QString::number(previousPlayer));
+				betRaised = false;
+				delay(200);
+			}
+			if (betMade == true) {
+				betMade = false;
+				sendMessage("ChangeTurn:" + QString::number(currentPlayer));
+			}
+		}
 	}
-
-	
 	exec();
-
-	
 }
 
 void ServerThread::readyRead()
@@ -80,6 +127,22 @@ void ServerThread::readyRead()
 			emit notifyOnBet();
 		}
 	}
+	if (arrayOfData[0] == "Raise")
+	{
+		//if current thread made bet (problem solved: current thread must have made bet because it the only socket that is allowed to bet in pok app)
+		if (arrayOfData[1] == QString::number(this->socketDescriptor))
+		{
+			if (arrayOfData[2] != 0)
+			{
+				betAmount = arrayOfData[2].toInt();
+				emit notifyOnRaise(this->socketDescriptor, betAmount);
+				qDebug() << betAmount;
+				delay(200);
+				emit notifyOnBet();
+			}
+		}
+	}
+
 	/*/
 	else
 		socket->write("Recived:" + Data);
@@ -125,6 +188,13 @@ void ServerThread::updateBetMade() {
 	qDebug() << "Thread:" << this->socketDescriptor << "BetMade ";
 }
 
+void ServerThread::updateRaiseMade(int playerNo, int amount) {
+	previousPlayer = playerNo;
+	betRaised = true;
+	qDebug() << "Thread:" << this->socketDescriptor << "RaiseMade By: " <<playerNo << "Amount: " << amount;
+	
+}
+
 void ServerThread::delay(int millisecondsToWait)
 {
 	QTime dieTime = QTime::currentTime().addMSecs(millisecondsToWait);
@@ -137,6 +207,28 @@ void ServerThread::getSignal() {
 	sendMessage("GameStarted:"+ QString::number(numberOfClients) + ":" + QString::number(currentPlayer));
 }
 
+void ServerThread::changeGameStage(int gameStage) {  //1 = preflop, 2= flop ...
+	qDebug() << "got the SIGNALLLLLLLLL";
+	if (gameStage == 1) {
+		isPreFlopFinished = true;
+		qDebug() << "changed prefloppppp";
+	}
+	if (gameStage == 2) {
+		isFlopFinished = true;
+		qDebug() << "changed flop";
+	}
+	if (gameStage == 3) {
+		isTurnFinished = true;
+		qDebug() << "changed turn";
+	}
+	if (gameStage == 4) {
+		isRiverFinished = true;
+		qDebug() << "changed river";
+	}
+	//sendMessage("GameStarted:" + QString::number(numberOfClients) + ":" + QString::number(currentPlayer));
+}
+
+/*
 void ServerThread::aFunction() {
 	//while game is on
 	while (!isGameFinished) {
@@ -150,3 +242,4 @@ void ServerThread::aFunction() {
 
 	}
 }
+*/
