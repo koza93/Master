@@ -45,7 +45,7 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	connect(thread, SIGNAL(notifyOnRaise(int,int)), this, SLOT(detectRaiseWasMade(int,int)), Qt::QueuedConnection);
 	qDebug() << "main" << QThread::currentThreadId();
 	thread->start();
-	listOfPlayers.append(socketDescriptor);
+	listOfPlayers.append(new Player(socketDescriptor, 500));
 	numberOfClients++;
 	if (numberOfClients == 1)
 	{
@@ -81,19 +81,25 @@ void PokerServer::incrementCurrentPlayer()
 	{
 		globalI = 0;
 		globalGameStage++;
-		qDebug()<<"trololololo";
 	}
-	currentPlayer = listOfPlayers[globalI];
+	currentPlayer = listOfPlayers[globalI]->getSocketDescriptor();
 	emit updateCurrentPlayer(currentPlayer);
 	if (globalI == 0)
 	{
 		emit changeGameStage(globalGameStage);
-		qDebug()<<"Traallalala";
 	}
 }
 
 void PokerServer::detectRaiseWasMade(int socketDescriptor, int amountRaised)
 {
+	for (int i = 0; i < listOfPlayers.length; i++)
+	{
+		if (listOfPlayers[i]->getSocketDescriptor() == socketDescriptor)
+		{
+			listOfPlayers[i]->setCurrentBet(amountRaised);
+		}
+	}
+	
 	emit updateRaiseMade(socketDescriptor, amountRaised);
 
 }

@@ -1,6 +1,7 @@
 #ifndef POKERSERVER_H
 #define POKERSERVER_H
 #include "ServerThread.h"
+#include "Player.h"
 #include <QThread>
 #include <QDebug>
 #include <QTcpServer>
@@ -18,7 +19,7 @@ public:
 	void StartServer();
 	void delay(int);
 	int currentPlayer = 0;									//thread id  of current player
-	QList<int> listOfPlayers;
+	QList<Player> listOfPlayers;
 signals:
 	void updateBetMade();									//notify socket threads bet was made
 	void updateRaiseMade(int, int);							//notify socket threads a raise was made (who_made_the_raise,amount_raised)
