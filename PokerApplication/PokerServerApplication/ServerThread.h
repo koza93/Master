@@ -22,7 +22,9 @@ public:
 signals:
 	void doSignal();								//semi-dummy signal to invoke messages (hopegully will solve problem with calling functions)	
 	void notifyOnBet();								//notifies pokers server that bet was made so it increments current player and emits it back
-	void notifyOnRaise(int,int);
+	void notifyOnCheck(int);						//notifies pokers server that a check was made (int socket descriptor of the player)
+	void notifyOnRaise(int,int);					//notifies pokers server that raise was made (int socketdescriptor of the player, int amount raised)
+	void notifyOnCall(int);							//notifies pokers server that call wa made (int socket descriptor of the player)
 	void error(QTcpSocket::SocketError error);
 	//void sendMessageSig();
 	public slots :
@@ -32,8 +34,11 @@ signals:
 	void sendMessage(QString msg);
 	void updateBetMade();
 	void updateRaiseMade(int, int);
+	void updateCallMade(int);
+	void updateCheckMade(int);
 	void updateNumberClients(int num);
 	void updateCurrentPlayer(int num);
+	void updateNoOfPlayersToStartGame(int num);				//updates number of players needed to start a game
 	void changeGameStage(int gameStage);
 
 	private slots :
@@ -45,9 +50,12 @@ private:
 	int currentPlayer = 0;
 	int previousPlayer = 0;
 	int betAmount = 0;
+	int numberOfPlayersToStart = 10;				//some reasonable number that will be changed by a lower value
 	bool betMade = false;
 	bool betRaised = false;
+	bool betCalled = false;
 	bool betFolded = false;
+	bool betChecked = false;
 	bool isGameFinished = false;
 	bool isPreFlopFinished = false;
 	bool isFlopFinished = false;

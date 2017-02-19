@@ -17,12 +17,16 @@ class Player : public QObject
 		void setSocketDescriptor(int);
 		void setTotalChips(int);
 		void setCurrentBet(int);
+		void setAsDealer(bool);					//set the attribute dealer to true or false - only one dealer at a time
+		void setAsBigBlind(bool);					//set the attribute dealer to true or false - only one bigblind at a time
 
 		int getSocketDescriptor();
 		int getTotalChips();
-		int getCurrentBet();
-		
+		int getCurrentBet();	
+		bool isDealer();
+		bool isBigBlind();
 
+		
 		
 	signals:
 		public slots :
@@ -32,6 +36,8 @@ class Player : public QObject
 		int socketDescriptor = 0;
 		int totalChips = 0;
 		int currentBet = 0;
+		bool dealer = false;
+		bool bigBlind = false;
 };
 
 #endif // PLAYER_H

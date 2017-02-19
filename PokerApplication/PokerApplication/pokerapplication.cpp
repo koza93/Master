@@ -177,8 +177,15 @@ void PokerApplication::sendRaiseButtonClicked() {
 	qDebug() << msg;
 	socket->write(message);
 }
+
 void PokerApplication::sendFoldButtonClicked() {
 	QString msg = "Fold:" + QString::number(myClientNumber);
+	QByteArray message = msg.toStdString().c_str();
+	socket->write(message);
+}
+
+void PokerApplication::callFoldButtonClicked() {
+	QString msg = "Call:" + QString::number(myClientNumber);
 	QByteArray message = msg.toStdString().c_str();
 	socket->write(message);
 }

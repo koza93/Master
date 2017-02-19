@@ -32,6 +32,15 @@ void Player::setCurrentBet(int bet)
 	currentBet = bet;
 }
 
+void Player::setAsDealer(bool d)
+{
+	dealer = d;
+}
+void Player::setAsBigBlind(bool b)
+{
+	bigBlind = b;
+}
+
 int Player::getSocketDescriptor()
 {
 	return socketDescriptor;
@@ -45,4 +54,14 @@ int Player::getTotalChips()
 int Player::getCurrentBet()
 {
 	return currentBet;
+}
+
+bool Player::isDealer()
+{
+	return dealer;
+}
+
+bool Player::isBigBlind()
+{
+	return bigBlind;
 }

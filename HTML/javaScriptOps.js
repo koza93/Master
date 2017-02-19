@@ -109,6 +109,13 @@ $(document).ready(function () {
 
 
     });
+
+    $("#callButton").click(function () {
+        //$("p").hide();
+        pokerOperations.callFoldButtonClicked();
+
+
+    });
    
    
     // jQuery methods go here...

@@ -31,7 +31,7 @@ void ServerThread::run()
 
 	qDebug() << "Client connected:" << this->socketDescriptor;
 
-	while (numberOfClients < 2)
+	while (numberOfClients < numberOfPlayersToStart)
 	{
 
 	}
@@ -48,11 +48,25 @@ void ServerThread::run()
 
 		//while playing pre flop
 		while (!isPreFlopFinished) {
+
+			//TODO - At some stage put all those if statements into a function
 			delay(500);
 			if (betRaised == true) 
 			{
 				sendMessage("Raise:" + QString::number(previousPlayer));
 				betRaised = false;
+				delay(200);
+			}
+			if (betCalled == true)
+			{
+				sendMessage("Call:" + QString::number(previousPlayer));
+				betCalled = false;
+				delay(200);
+			}
+			if (betChecked == true)
+			{
+				sendMessage("Check:" + QString::number(previousPlayer));
+				betChecked = false;
 				delay(200);
 			}
 			if (betMade == true) {
@@ -70,6 +84,18 @@ void ServerThread::run()
 				betRaised = false;
 				delay(200);
 			}
+			if (betCalled == true)
+			{
+				sendMessage("Call:" + QString::number(previousPlayer));
+				betCalled = false;
+				delay(200);
+			}
+			if (betChecked == true)
+			{
+				sendMessage("Check:" + QString::number(previousPlayer));
+				betChecked = false;
+				delay(200);
+			}
 			if (betMade == true) {
 				betMade = false;
 				sendMessage("ChangeTurn:" + QString::number(currentPlayer));
@@ -83,6 +109,18 @@ void ServerThread::run()
 			{
 				sendMessage("Raise:" + QString::number(previousPlayer));
 				betRaised = false;
+				delay(200);
+			}
+			if (betCalled == true)
+			{
+				sendMessage("Call:" + QString::number(previousPlayer));
+				betCalled = false;
+				delay(200);
+			}
+			if (betChecked == true)
+			{
+				sendMessage("Check:" + QString::number(previousPlayer));
+				betChecked = false;
 				delay(200);
 			}
 			if (betMade == true) {
@@ -100,11 +138,24 @@ void ServerThread::run()
 				betRaised = false;
 				delay(200);
 			}
+			if (betCalled == true)
+			{
+				sendMessage("Call:" + QString::number(previousPlayer));
+				betCalled = false;
+				delay(200);
+			}
+			if (betChecked == true)
+			{
+				sendMessage("Check:" + QString::number(previousPlayer));
+				betChecked = false;
+				delay(200);
+			}
 			if (betMade == true) {
 				betMade = false;
 				sendMessage("ChangeTurn:" + QString::number(currentPlayer));
 			}
 		}
+		isGameFinished = true;
 	}
 	exec();
 }
@@ -124,6 +175,8 @@ void ServerThread::readyRead()
 		//if current thread made bet (problem solved: current thread must have made bet because it the only socket that is allowed to bet in pok app)
 		if (arrayOfData[1] == QString::number(this->socketDescriptor))
 		{
+			emit notifyOnCheck(this->socketDescriptor);
+			delay(200);
 			emit notifyOnBet();
 		}
 	}
@@ -140,6 +193,16 @@ void ServerThread::readyRead()
 				delay(200);
 				emit notifyOnBet();
 			}
+		}
+	}
+	if (arrayOfData[0] == "Call")
+	{
+		//if current thread made bet (problem solved: current thread must have made bet because it the only socket that is allowed to bet in pok app)
+		if (arrayOfData[1] == QString::number(this->socketDescriptor))
+		{
+			emit notifyOnCall(this->socketDescriptor); //notifies that this player called a raise
+			delay(200);
+			emit notifyOnBet();
 		}
 	}
 
@@ -176,6 +239,11 @@ void ServerThread::updateNumberClients(int num) {
 	//	//emit sendMessage();
 	//}
 }
+
+void ServerThread::updateNoOfPlayersToStartGame(int num) {
+	numberOfPlayersToStart = num;
+}
+
 void ServerThread::updateCurrentPlayer(int num) {
 	currentPlayer = num;
 	qDebug() << "numClients" << QThread::currentThreadId();
@@ -193,6 +261,20 @@ void ServerThread::updateRaiseMade(int playerNo, int amount) {
 	betRaised = true;
 	qDebug() << "Thread:" << this->socketDescriptor << "RaiseMade By: " <<playerNo << "Amount: " << amount;
 	
+}
+
+void ServerThread::updateCheckMade(int playerNo) {
+	previousPlayer = playerNo;
+	betChecked = true;
+	qDebug() << "Thread:" << this->socketDescriptor << "CheckMade By: " << playerNo;
+
+}
+
+void ServerThread::updateCallMade(int playerNo) {
+	previousPlayer = playerNo;
+	betCalled = true;
+	qDebug() << "Thread:" << this->socketDescriptor << "CallMade By: " << playerNo;
+
 }
 
 void ServerThread::delay(int millisecondsToWait)
