@@ -26,6 +26,7 @@ signals:
 	void updateRaiseMade(int, int);							//notify socket threads a raise was made (int who_made_the_raise,int amount_raised)
 	void updateCallMade(int num);							//notify socket threads a call was made (int who_made_the_call)
 	void updateCheckMade(int num);							//notify socket threads a check was made (int who_made_the_call)
+	void updateFoldMade(int num);							//notify socket threads of current player fold
 	void updateCurrentPlayer(int num);						//notify socket threads of current player
 	void updateNoClients(int num);							//notify socket threads of number of clients
 	void changeGameStage(int num);							//notify socket that game stage changed ie pre flop to flop. 0 for pre flop, 1 for flop ....to change from pre flop to flop send 1
@@ -36,6 +37,7 @@ public slots :
 	void detectRaiseWasMade(int,int);						//if asocket detects a raise it notifies who and how much raised
 	void detectCallWasMade(int);							//if asocket detects a call it notifies who called the last bet
 	void detectCheckWasMade(int);							//if asocket detects a check it notifies who called the last bet
+	void detectFoldWasMade(int);							//if asocket detects a fold it notifies who folded the last bet
 	//void mySlot();
 	private slots :
 

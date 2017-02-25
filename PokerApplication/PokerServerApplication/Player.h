@@ -19,12 +19,16 @@ class Player : public QObject
 		void setCurrentBet(int);
 		void setAsDealer(bool);					//set the attribute dealer to true or false - only one dealer at a time
 		void setAsBigBlind(bool);					//set the attribute dealer to true or false - only one bigblind at a time
+		void setAsFolded(bool);					//set the attribute hasFolded to true or false 
+		void setAsBet(bool);					//set the attribute hasBet to true or false 
 
 		int getSocketDescriptor();
 		int getTotalChips();
 		int getCurrentBet();	
 		bool isDealer();
 		bool isBigBlind();
+		bool isFolded();
+		bool isBet();
 
 		
 		
@@ -38,6 +42,8 @@ class Player : public QObject
 		int currentBet = 0;
 		bool dealer = false;
 		bool bigBlind = false;
+		bool hasFolded = false;
+		bool hasBet = false;
 };
 
 #endif // PLAYER_H

@@ -51,6 +51,13 @@ void ServerThread::run()
 
 			//TODO - At some stage put all those if statements into a function
 			delay(500);
+
+			if (betFolded == true)
+			{
+				sendMessage("Fold:" + QString::number(previousPlayer));
+				betFolded = false;
+				delay(200);
+			}
 			if (betRaised == true) 
 			{
 				sendMessage("Raise:" + QString::number(previousPlayer));
@@ -78,6 +85,13 @@ void ServerThread::run()
 		//while playing flop
 		while (!isFlopFinished) {
 			delay(500);
+
+			if (betFolded == true)
+			{
+				sendMessage("Fold:" + QString::number(previousPlayer));
+				betFolded = false;
+				delay(200);
+			}
 			if (betRaised == true)
 			{
 				sendMessage("Raise:" + QString::number(previousPlayer));
@@ -105,6 +119,13 @@ void ServerThread::run()
 		//while playing turn
 		while (!isTurnFinished) {
 			delay(500);
+
+			if (betFolded == true)
+			{
+				sendMessage("Fold:" + QString::number(previousPlayer));
+				betFolded = false;
+				delay(200);
+			}
 			if (betRaised == true)
 			{
 				sendMessage("Raise:" + QString::number(previousPlayer));
@@ -132,6 +153,13 @@ void ServerThread::run()
 		//while playing river
 		while (!isRiverFinished) {
 			delay(500);
+
+			if (betFolded == true)
+			{
+				sendMessage("Fold:" + QString::number(previousPlayer));
+				betFolded = false;
+				delay(200);
+			}
 			if (betRaised == true)
 			{
 				sendMessage("Raise:" + QString::number(previousPlayer));
@@ -205,6 +233,16 @@ void ServerThread::readyRead()
 			emit notifyOnBet();
 		}
 	}
+	if (arrayOfData[0] == "Fold")
+	{
+		//if current thread made bet (problem solved: current thread must have made bet because it the only socket that is allowed to bet in pok app)
+		if (arrayOfData[1] == QString::number(this->socketDescriptor))
+		{
+			emit notifyOnFold(this->socketDescriptor); //notifies that this player called a raise
+			delay(200);
+			emit notifyOnBet();
+		}
+	}
 
 	/*/
 	else
@@ -273,6 +311,13 @@ void ServerThread::updateCheckMade(int playerNo) {
 void ServerThread::updateCallMade(int playerNo) {
 	previousPlayer = playerNo;
 	betCalled = true;
+	qDebug() << "Thread:" << this->socketDescriptor << "CallMade By: " << playerNo;
+
+}
+
+void ServerThread::updateFoldMade(int playerNo) {
+	previousPlayer = playerNo;
+	betFolded = true;
 	qDebug() << "Thread:" << this->socketDescriptor << "CallMade By: " << playerNo;
 
 }

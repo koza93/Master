@@ -40,6 +40,7 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	connect(this, SIGNAL(updateCurrentPlayer(int)), thread, SLOT(updateCurrentPlayer(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(changeGameStage(int)), thread, SLOT(changeGameStage(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateBetMade()), thread, SLOT(updateBetMade()), Qt::QueuedConnection);
+	connect(this, SIGNAL(updateFoldMade(int)), thread, SLOT(updateFoldMade(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateRaiseMade(int,int)), thread, SLOT(updateRaiseMade(int, int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCallMade(int)), thread, SLOT(updateCallMade(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCheckMade(int)), thread, SLOT(updateCheckMade(int)), Qt::QueuedConnection);
@@ -48,6 +49,7 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	connect(thread, SIGNAL(notifyOnRaise(int,int)), this, SLOT(detectRaiseWasMade(int,int)), Qt::QueuedConnection);
 	connect(thread, SIGNAL(notifyOnCall(int)), this, SLOT(detectCallWasMade(int)), Qt::QueuedConnection);
 	connect(thread, SIGNAL(notifyOnCheck(int)), this, SLOT(detectCheckWasMade(int)), Qt::QueuedConnection);
+	connect(thread, SIGNAL(notifyOnFold(int)), this, SLOT(detectFoldWasMade(int)), Qt::QueuedConnection);
 
 	qDebug() << "main" << QThread::currentThreadId();
 	thread->start();
@@ -119,31 +121,46 @@ void PokerServer::incrementCurrentPlayer()
 {
 	bool allBetsMadeFlag = true;										//local flag to check if everyone made a called/folded bet during the round
 	
-	if (listOfPlayers[globalI]->isBigBlind() && globalGameStage == 0)	//only used during preflop
-	{
-		bigBlindBet = true;
-	}
+	listOfPlayers[globalI]->setAsBet(true);								//takes not of the fact that the player already bet this turn - needs to be changed for all players after game stage change
 
-	if (listOfPlayers[globalI]->isDealer() && globalGameStage != 0)	// used after preflop
-	{
-		dealerBet = true;
-	}
-
+	/***********************///this bit of code might not be needed if hadBet will work properly as i think it should
+	//if (listOfPlayers[globalI]->isBigBlind() && globalGameStage == 0)	//only used during preflop
+	//{
+	//	bigBlindBet = true;
+	//}
+	//
+	//if (listOfPlayers[globalI]->isDealer() && globalGameStage != 0)	// used after preflop
+	//{
+	//	dealerBet = true;
+	//}
+	/***********************/
 	globalI++;
-	if (globalI >= numberOfClients)
+	if (globalI >= listOfPlayers.length())
 	{
 		globalI = 0;
 	}
 
-	for (int i = 0; i < listOfPlayers.length(); i++)
+	while (listOfPlayers[globalI]->isFolded())
 	{
-		if (listOfPlayers[i]->getCurrentBet() < currentBiggestBet) {
-			allBetsMadeFlag = false;
+		globalI++;
+		if (globalI >= listOfPlayers.length())
+		{
+			globalI = 0;
 		}
-		qDebug() << "The current bet for each player is: PLayer: " << listOfPlayers[i]->getSocketDescriptor() << " Bet: " << listOfPlayers[i]->getCurrentBet();
 	}
 
-	if (allBetsMadeFlag && (bigBlindBet || dealerBet))							//only if all bets are equal and the player on the big blind has already played change the game stage
+	for (int i = 0; i < listOfPlayers.length(); i++)
+	{
+		if (!listOfPlayers[i]->isFolded())
+		{
+			if (listOfPlayers[i]->getCurrentBet() < currentBiggestBet || !listOfPlayers[i]->isBet() ) {	//makes sure all players have bet
+				allBetsMadeFlag = false;
+			}
+			qDebug() << "The current bet for each player is: PLayer: " << listOfPlayers[i]->getSocketDescriptor() << " Bet: " << listOfPlayers[i]->getCurrentBet();
+		}
+	}
+
+	if (allBetsMadeFlag)//if (allBetsMadeFlag && (bigBlindBet || dealerBet))//only if all bets are equal and the player on the big blind has already played change the game stage
 	{
 		previousGlobalGameStage = globalGameStage;
 		globalGameStage++;
@@ -153,9 +170,17 @@ void PokerServer::incrementCurrentPlayer()
 			if (listOfPlayers[i]->isDealer())
 			{
 				globalI = i+1;
-				if (globalI >= numberOfClients)
+				if (globalI >= listOfPlayers.length())
 				{
 					globalI = 0;
+				}
+				while (listOfPlayers[globalI]->isFolded())
+				{
+					globalI++;
+					if (globalI >= listOfPlayers.length())
+					{
+						globalI = 0;
+					}
 				}
 				currentPlayer = listOfPlayers[globalI]->getSocketDescriptor();
 				emit updateCurrentPlayer(currentPlayer);
@@ -167,10 +192,16 @@ void PokerServer::incrementCurrentPlayer()
 		currentPlayer = listOfPlayers[globalI]->getSocketDescriptor();
 		emit updateCurrentPlayer(currentPlayer);
 	}
-	if (allBetsMadeFlag && (bigBlindBet || dealerBet))
+	if (allBetsMadeFlag)
 	{
-		bigBlindBet = false;
-		dealerBet = false;
+		for (int i = 0; i < listOfPlayers.length(); i++)
+		{
+			if (!listOfPlayers[i]->isFolded())
+			{
+				listOfPlayers[i]->setAsBet(false);
+			}
+		}
+		
 		emit changeGameStage(globalGameStage);
 	}
 }
@@ -187,6 +218,22 @@ void PokerServer::detectRaiseWasMade(int socketDescriptor, int amountRaised)
 	currentBiggestBet += amountRaised;								//adding the amount raised on top of whateever is already highest bet
 	qDebug() << "The current biggest bet at raise is: " << currentBiggestBet;
 	emit updateRaiseMade(socketDescriptor, amountRaised);				
+
+}
+
+void PokerServer::detectFoldWasMade(int socketDescriptor)
+{
+	int foldedNumber = 0;
+	for (int i = 0; i < listOfPlayers.length(); i++)
+	{
+		if (listOfPlayers[i]->getSocketDescriptor() == socketDescriptor)
+		{
+			listOfPlayers[i]->setAsFolded(true);
+			qDebug() << "Player " << i << "has folded!";
+		}
+	}
+	
+	emit updateFoldMade(socketDescriptor);
 
 }
 

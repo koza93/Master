@@ -25,6 +25,7 @@ signals:
 	void notifyOnCheck(int);						//notifies pokers server that a check was made (int socket descriptor of the player)
 	void notifyOnRaise(int,int);					//notifies pokers server that raise was made (int socketdescriptor of the player, int amount raised)
 	void notifyOnCall(int);							//notifies pokers server that call wa made (int socket descriptor of the player)
+	void notifyOnFold(int);							//notifies pokers server that a fold was made (int socket descriptor of the player)
 	void error(QTcpSocket::SocketError error);
 	//void sendMessageSig();
 	public slots :
@@ -36,6 +37,7 @@ signals:
 	void updateRaiseMade(int, int);
 	void updateCallMade(int);
 	void updateCheckMade(int);
+	void updateFoldMade(int);
 	void updateNumberClients(int num);
 	void updateCurrentPlayer(int num);
 	void updateNoOfPlayersToStartGame(int num);				//updates number of players needed to start a game

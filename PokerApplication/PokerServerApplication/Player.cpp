@@ -36,9 +36,19 @@ void Player::setAsDealer(bool d)
 {
 	dealer = d;
 }
-void Player::setAsBigBlind(bool b)
+void Player::setAsBigBlind(bool bb)
 {
-	bigBlind = b;
+	bigBlind = bb;
+}
+
+void Player::setAsFolded(bool f)
+{
+	hasFolded = f;
+}
+
+void Player::setAsBet(bool b)
+{
+	hasBet = b;
 }
 
 int Player::getSocketDescriptor()
@@ -64,4 +74,14 @@ bool Player::isDealer()
 bool Player::isBigBlind()
 {
 	return bigBlind;
+}
+
+bool Player::isFolded()
+{
+	return hasFolded;
+}
+
+bool Player::isBet()
+{
+	return hasBet;
 }
