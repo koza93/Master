@@ -4,6 +4,8 @@ $(document).ready(function () {
        // now you retrieve your object
         window.pokerOperations = channel.objects.pokerOperations;
       
+        //varaibles
+        var myPlayerNumber;
 
         pokerOperations.webChannelTest("Created JS Object");
 
@@ -42,11 +44,26 @@ $(document).ready(function () {
                         })(i);
                     }
                     alert("Game Started");
-                    
-                    
-
                 });
-                
+
+                //gets the player thread number from the c++ code
+                pokerOperations.getPlayerNumber(function (returnValue) {
+                    myPlayerNumber = returnValue;
+                });
+            }
+
+        });
+
+        //notifies if player can check or call
+
+        pokerOperations.notifyOnCanCheck.connect(function (returnValue,returnValue2) {
+            if (returnValue === true) {
+                $("#callButton").css("visibility", "hidden");
+                $("#checkButton").css("visibility", "visible");
+            }
+            else if (returnValue === false) {
+                $("#callButton").css("visibility", "visible");
+                $("#checkButton").css("visibility", "hidden");
             }
         });
     });
@@ -90,29 +107,32 @@ $(document).ready(function () {
 
     });
     $("#checkButton").click(function () {
-        //$("p").hide();
         pokerOperations.sendCheckButtonClicked();
-            
-
+        $("#checkButton").css("visibility", "hidden");
+        $("#callButton").css("visibility", "hidden");
     });
 
     $("#raiseButton").click(function () {
         //$("p").hide();
         pokerOperations.sendRaiseButtonClicked();
-
+        $("#checkButton").css("visibility", "hidden");
+        $("#callButton").css("visibility", "hidden");
 
     });
 
     $("#foldButton").click(function () {
         //$("p").hide();
         pokerOperations.sendFoldButtonClicked();
-
+        $("#checkButton").css("visibility", "hidden");
+        $("#callButton").css("visibility", "hidden");
 
     });
 
     $("#callButton").click(function () {
         //$("p").hide();
         pokerOperations.callFoldButtonClicked();
+        $("#callButton").css("visibility", "hidden");
+        $("#checkButton").css("visibility", "hidden");
 
 
     });

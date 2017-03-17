@@ -22,7 +22,7 @@ public:
 	QList<Player*> listOfPlayers;
 signals:
 	void updateNoOfPlayersToStartGame(int num);				//notify socket threads how many players to start game;
-	void updateBetMade();									//notify socket threads bet was made
+	void updateBetMade(bool);								//notify socket threads bet was made (int canCheck) 0 for call, 1 for check
 	void updateRaiseMade(int, int);							//notify socket threads a raise was made (int who_made_the_raise,int amount_raised)
 	void updateCallMade(int num);							//notify socket threads a call was made (int who_made_the_call)
 	void updateCheckMade(int num);							//notify socket threads a check was made (int who_made_the_call)
@@ -52,7 +52,7 @@ private:
 	int totalPot = 0;										//totalPot for a game
 	int currentBiggestBet = 0;
 
-	int numberOfPlayersToStartGame = 4;
+	int numberOfPlayersToStartGame = 2;
 
 	bool bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
 	bool dealerBet = false;										//determines whether the dealer has already bet or not - used after preflop

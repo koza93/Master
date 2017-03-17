@@ -33,7 +33,7 @@ signals:
 	void readyRead();
 	void disconnected();
 	void sendMessage(QString msg);
-	void updateBetMade();
+	void updateBetMade(bool);						//can check 1, can call 0
 	void updateRaiseMade(int, int);
 	void updateCallMade(int);
 	void updateCheckMade(int);
@@ -58,6 +58,7 @@ private:
 	bool betCalled = false;
 	bool betFolded = false;
 	bool betChecked = false;
+	bool canCheck = false;
 	bool isGameFinished = false;
 	bool isPreFlopFinished = false;
 	bool isFlopFinished = false;

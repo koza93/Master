@@ -125,13 +125,29 @@ void PokerApplication::readyRead()
 				isMyTurn = true;
 				notifyOnTurn(isMyTurn);
 				qDebug("My turn");
+				if (dataList[2] == "CanCheck")
+				{
+					if (dataList[3] == "1") {
+
+						notifyOnCanCheck(true);
+						qDebug("CanCheck");
+					}
+					else {
+						notifyOnCanCheck(false);
+						qDebug("CanCall");
+					}
+				}
 			}
 			else {
 				isMyTurn = false;
 				notifyOnTurn(isMyTurn);
 				qDebug("Not my turn");
 			}
+			
+			
 		}
+		
+		
 	}	
 	if (dataList.length() > 2) {
 		if (dataList[0] == "GameStarted") {
@@ -162,6 +178,11 @@ void PokerApplication::disconnected()
 int PokerApplication::getNumberOfPlayers()
 {
 	return numberOfPlayers;
+}
+
+int PokerApplication::getPlayerNumber()
+{
+	return myClientNumber;
 }
 
 void PokerApplication::sendCheckButtonClicked() {

@@ -78,7 +78,19 @@ void ServerThread::run()
 			}
 			if (betMade == true) {
 				betMade = false;
-				sendMessage("ChangeTurn:" + QString::number(currentPlayer));
+				QString msg;
+				if (canCheck == true)
+				{
+					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:1";
+					qDebug() << "The msg is:" << msg;
+					sendMessage(msg);
+				}
+				else
+				{
+					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:0";
+					qDebug() << "The msg is:" << msg;
+					sendMessage(msg);
+				}
 			}
 		}
 		
@@ -112,7 +124,19 @@ void ServerThread::run()
 			}
 			if (betMade == true) {
 				betMade = false;
-				sendMessage("ChangeTurn:" + QString::number(currentPlayer));
+				QString msg;
+				if (canCheck == true)
+				{
+					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:1";
+					qDebug() << "The msg is:" << msg;
+					sendMessage(msg);
+				}
+				else
+				{
+					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:0";
+					qDebug() << "The msg is:" << msg;
+					sendMessage(msg);
+				}
 			}
 		}
 
@@ -146,7 +170,19 @@ void ServerThread::run()
 			}
 			if (betMade == true) {
 				betMade = false;
-				sendMessage("ChangeTurn:" + QString::number(currentPlayer));
+				QString msg;
+				if (canCheck == true)
+				{
+					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:1";
+					qDebug() << "The msg is:" << msg;
+					sendMessage(msg);
+				}
+				else
+				{
+					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:0";
+					qDebug() << "The msg is:" << msg;
+					sendMessage(msg);
+				}
 			}
 		}
 
@@ -180,7 +216,19 @@ void ServerThread::run()
 			}
 			if (betMade == true) {
 				betMade = false;
-				sendMessage("ChangeTurn:" + QString::number(currentPlayer));
+				QString msg;
+				if (canCheck == true)
+				{
+					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:1";
+					qDebug() << "The msg is:" << msg;
+					sendMessage(msg);
+				}
+				else
+				{
+					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:0";
+					qDebug() << "The msg is:" << msg;
+					sendMessage(msg);
+				}
 			}
 		}
 		isGameFinished = true;
@@ -289,7 +337,8 @@ void ServerThread::updateCurrentPlayer(int num) {
 	
 }
 
-void ServerThread::updateBetMade() {
+void ServerThread::updateBetMade(bool c) {
+	canCheck = c;
 	betMade = true;
 	qDebug() << "Thread:" << this->socketDescriptor << "BetMade ";
 }

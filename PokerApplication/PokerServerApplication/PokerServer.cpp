@@ -1,4 +1,6 @@
 #include "PokerServer.h"
+#include "Deck.h"
+#include "Card.h"
 #include <QTime>
 #include <QCoreApplication>
 
@@ -39,7 +41,7 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	connect(this, SIGNAL(updateNoOfPlayersToStartGame(int)), thread, SLOT(updateNoOfPlayersToStartGame(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCurrentPlayer(int)), thread, SLOT(updateCurrentPlayer(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(changeGameStage(int)), thread, SLOT(changeGameStage(int)), Qt::QueuedConnection);
-	connect(this, SIGNAL(updateBetMade()), thread, SLOT(updateBetMade()), Qt::QueuedConnection);
+	connect(this, SIGNAL(updateBetMade(bool)), thread, SLOT(updateBetMade(bool)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateFoldMade(int)), thread, SLOT(updateFoldMade(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateRaiseMade(int,int)), thread, SLOT(updateRaiseMade(int, int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCallMade(int)), thread, SLOT(updateCallMade(int)), Qt::QueuedConnection);
@@ -101,7 +103,21 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 		emit updateNoOfPlayersToStartGame(numberOfPlayersToStartGame);
 		emit updateNoClients(numberOfClients);
 		emit updateCurrentPlayer(currentPlayer);
+
+		//for now this piece of code creates a deck, i might fit it elsewhere 
+		if (numberOfClients == numberOfPlayersToStartGame) {
+			Deck playingDeck;
+			//playingDeck.displayDeckTest();
+			for (int i = 0; i < 52; i++)
+			{
+				qDebug() << playingDeck.getCardFromDeck(i)->getSuit() << " "<< playingDeck.getCardFromDeck(i)->getFigure();
+			}
+		}
+		//if i dont fit it elswhere i am going to send a signal containing the deck to all the threads and they can deal with it from there
+		//UPDATE:: gonna need to deal the cards first then send the signal
 	}
+
+
 
 	//emit updateNoClients(numberOfClients);
 	qDebug() << "Number of clients: " << numberOfClients;
@@ -259,5 +275,9 @@ void PokerServer::detectCheckWasMade(int socketDescriptor)
 
 void PokerServer::detectBetWasMade()
 {
-	emit updateBetMade();
+
+	if (listOfPlayers[globalI]->getCurrentBet() == currentBiggestBet)
+		emit updateBetMade(true); //(int CanCheck)  send 1 if can check, send 0 if not
+	else
+		emit updateBetMade(false);
 }
