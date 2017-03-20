@@ -146,7 +146,28 @@ void PokerApplication::readyRead()
 			
 			
 		}
+
+		if (dataList[0] == "TurnCard") {
+			qDebug() << "Turn Dealt";
+
+			//notifyOnGameStarted(isGameStarted); //make a notify function to notify js of cards
+			cardsOnTable[3] = dataList[1];
+			
+			qDebug() << "TurnCard1 is:" << cardsOnTable[3];
 		
+			notifyOnTurnDealt(true); //make a notify function to notify js of cards
+		}
+		
+		if (dataList[0] == "RiverCard") {
+			qDebug() << "River Dealt";
+
+			//notifyOnGameStarted(isGameStarted); //make a notify function to notify js of cards
+			cardsOnTable[4] = dataList[1];
+
+			qDebug() << "RiverCard1 is:" << cardsOnTable[4];
+
+			notifyOnRiverDealt(true); //make a notify function to notify js of cards
+		}
 		
 	}	
 	if (dataList.length() > 2) {
@@ -165,6 +186,35 @@ void PokerApplication::readyRead()
 				qDebug("Not my turn");
 			}
 		}
+
+		if (dataList[0] == "HandCards") {
+			qDebug() << "Hand Dealt";
+			
+			//notifyOnGameStarted(isGameStarted); //make a notify function to notify js of cards
+			myCards[0] = dataList[1];
+			myCards[1] = dataList[2];
+
+			qDebug() << "Mycard1 is:" << myCards[0];
+			qDebug() << "Mycard2 is:" << myCards[1];
+
+			notifyOnHandDealt(true); //make a notify function to notify js of cards
+		}
+
+		if (dataList[0] == "FlopCards") {
+			qDebug() << "Flop Dealt";
+
+			//notifyOnGameStarted(isGameStarted); //make a notify function to notify js of cards
+			cardsOnTable[0] = dataList[1];
+			cardsOnTable[1] = dataList[2];
+			cardsOnTable[2] = dataList[3];
+
+			qDebug() << "FlopCard1 is:" << cardsOnTable[0];
+			qDebug() << "FlopCard2 is:" << cardsOnTable[1];
+			qDebug() << "FlopCard3 is:" << cardsOnTable[2];
+
+
+			notifyOnFlopDealt(true); //make a notify function to notify js of cards
+		}
 	}
 	
 }
@@ -178,6 +228,16 @@ void PokerApplication::disconnected()
 int PokerApplication::getNumberOfPlayers()
 {
 	return numberOfPlayers;
+}
+
+QString PokerApplication::getHandCards(int n)
+{
+	return myCards[n];
+}
+
+QString PokerApplication::getTableCards(int n)
+{
+	return cardsOnTable[n];
 }
 
 int PokerApplication::getPlayerNumber()

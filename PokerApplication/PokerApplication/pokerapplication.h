@@ -13,7 +13,11 @@ class PokerApplication : public QObject
 signals :
 	void notifyOnTurn(bool);											//notify js
 	void notifyOnGameStarted(bool);										//notify js
-	void notifyOnCanCheck(bool);									//notify js
+	void notifyOnCanCheck(bool);										//notify js
+	void notifyOnHandDealt(bool);										//notify js
+	void notifyOnFlopDealt(bool);										//notify js
+	void notifyOnTurnDealt(bool);										//notify js
+	void notifyOnRiverDealt(bool);										//notify js
 	void error(QTcpSocket::SocketError error);
 public slots :
 	void readyRead();
@@ -30,6 +34,8 @@ public:
 	Q_INVOKABLE bool joinTable();										//try to join table called from js
 	Q_INVOKABLE int getNumberOfPlayers();								//return number of players for js
 	Q_INVOKABLE int getPlayerNumber();									//return player number for js
+	Q_INVOKABLE QString getHandCards(int n);							//return player number for js
+	Q_INVOKABLE QString getTableCards(int n);							//return player number for js
 	Q_INVOKABLE void sendCheckButtonClicked();							//send a message to server notifying of check button clicked
 	Q_INVOKABLE void sendRaiseButtonClicked();							//send a message to server notifying of raise button clicked
 	Q_INVOKABLE void sendFoldButtonClicked();							//send a message to server notifying of fold button clicked
@@ -52,6 +58,9 @@ private:
 	int myTotalChips = 0;
 	int totalPot = 0;
 	int currentBet = 0;
+
+	QString myCards[2];												//String values for cards on hand
+	QString cardsOnTable[5];											//String values for cards on table
 };
 
 #endif // POKERAPPLICATION_H

@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QDebug>
+#include "Card.h"
 
 class Player : public QObject
 {
@@ -30,6 +31,9 @@ class Player : public QObject
 		bool isFolded();
 		bool isBet();
 
+		void setMyCurrentHand(Card*, int);		//(theCard, the position in array) //position must be less than 2
+		Card* getMyCards(int);					//(position in array) //must be less than 2
+
 		
 		
 	signals:
@@ -44,6 +48,9 @@ class Player : public QObject
 		bool bigBlind = false;
 		bool hasFolded = false;
 		bool hasBet = false;
+
+		Card* myCurrentHand[2];
 };
 
 #endif // PLAYER_H
+

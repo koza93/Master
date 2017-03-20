@@ -25,6 +25,7 @@ void PokerServer::StartServer()
 		PokerServer s;
 
 	}
+
 	/*
 	gameThread = new GameThread(numberOfClients, this);
 	connect(gameThread, SIGNAL(finished()), gameThread, SLOT(deleteLater()));
@@ -37,6 +38,8 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	ServerThread *thread = new ServerThread(socketDescriptor, this);
 	//clientThreads.append(thread);
 	connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+	connect(this, SIGNAL(updateHand(Card*, Card*,int)), thread, SLOT(updateMyCurrentHand(Card*, Card*,int)), Qt::QueuedConnection);
+	connect(this, SIGNAL(updateCardsOnTable(Card**)), thread, SLOT(updateCardsOnTable(Card**)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateNoClients(int)), thread, SLOT(updateNumberClients(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateNoOfPlayersToStartGame(int)), thread, SLOT(updateNoOfPlayersToStartGame(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCurrentPlayer(int)), thread, SLOT(updateCurrentPlayer(int)), Qt::QueuedConnection);
@@ -106,15 +109,17 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 
 		//for now this piece of code creates a deck, i might fit it elsewhere 
 		if (numberOfClients == numberOfPlayersToStartGame) {
-			Deck playingDeck;
-			//playingDeck.displayDeckTest();
-			for (int i = 0; i < 52; i++)
-			{
-				qDebug() << playingDeck.getCardFromDeck(i)->getSuit() << " "<< playingDeck.getCardFromDeck(i)->getFigure();
-			}
+			
+			playingDeck.shuffleDeck();
+			dealCards();
+			/*/
+			for (int i = 0; i < 5; i++) {
+				qDebug() << cardsOnTable[i]->getFigure() << cardsOnTable[i]->getSuit();
+			}*/
 		}
 		//if i dont fit it elswhere i am going to send a signal containing the deck to all the threads and they can deal with it from there
 		//UPDATE:: gonna need to deal the cards first then send the signal
+		//UPDATE2:: so i think i gonna need to send a signal from each thread that will say its ready to receive the cards and then send the card with another signal
 	}
 
 
@@ -280,4 +285,28 @@ void PokerServer::detectBetWasMade()
 		emit updateBetMade(true); //(int CanCheck)  send 1 if can check, send 0 if not
 	else
 		emit updateBetMade(false);
+}
+
+void PokerServer::dealCards()
+{
+	int k = 0;
+	for (int j = 0; j < 2; j++)
+	{
+		for (int i = 0; i < numberOfClients; i++) {
+			listOfPlayers[i]->setMyCurrentHand(playingDeck.getCardFromDeck(k),j);
+			k++;
+		}
+	}
+	for (int i = 0; i < 5; i++)
+	{
+		cardsOnTable[i] = playingDeck.getCardFromDeck(k);
+		k++;
+	}
+
+	//notify socket threads of their cards
+	for (int i = 0; i < numberOfClients; i++) {
+		emit updateHand(listOfPlayers[i]->getMyCards(0), listOfPlayers[i]->getMyCards(1), listOfPlayers[i]->getSocketDescriptor());
+	}
+
+	emit updateCardsOnTable(cardsOnTable);
 }

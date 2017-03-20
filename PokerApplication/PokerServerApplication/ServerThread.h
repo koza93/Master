@@ -8,6 +8,7 @@
 #include <QCoreApplication>
 #include <QFuture>
 #include <QtConcurrent>
+#include "Card.h"
 
 class ServerThread : public QThread
 {
@@ -17,6 +18,7 @@ public:
 	explicit ServerThread(int ID, QObject * parent = 0);
 	void run();
 	void delay(int);
+	void checkInputsFromServer();
 	//void aFunction();
 	//GameThread *gThread;
 signals:
@@ -40,8 +42,11 @@ signals:
 	void updateFoldMade(int);
 	void updateNumberClients(int num);
 	void updateCurrentPlayer(int num);
-	void updateNoOfPlayersToStartGame(int num);				//updates number of players needed to start a game
+	void updateNoOfPlayersToStartGame(int num);		//updates number of players needed to start a game
 	void changeGameStage(int gameStage);
+
+	void updateMyCurrentHand(Card*, Card*,int);		//updates current hand if cards are dealt for this thread
+	void updateCardsOnTable(Card**);				//update current card on table if dealt
 
 	private slots :
 
@@ -53,6 +58,7 @@ private:
 	int previousPlayer = 0;
 	int betAmount = 0;
 	int numberOfPlayersToStart = 10;				//some reasonable number that will be changed by a lower value
+	
 	bool betMade = false;
 	bool betRaised = false;
 	bool betCalled = false;
@@ -64,6 +70,14 @@ private:
 	bool isFlopFinished = false;
 	bool isTurnFinished = false;
 	bool isRiverFinished = false;
+
+	bool handDealt = false;
+	bool flopDealt = false;
+	bool turnDealt = false;
+	bool riverDealt = false;
+
+	Card* myCurrentCards[2];
+	Card* cardsOnTable[5];
 	
 };
 

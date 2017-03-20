@@ -99,6 +99,20 @@ div {
     visibility:hidden;/*hidden by default*/
 }
 
+#card6{
+    margin-left: 8vw;
+    top: 60vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+
+#card7{
+    margin-left: 17vw;
+    top: 60vh;
+    position:absolute;
+    visibility:hidden;/*hidden by default*/
+}
+
 #seatTaken1{
     margin-left: -10vw;
     top: 20vh;

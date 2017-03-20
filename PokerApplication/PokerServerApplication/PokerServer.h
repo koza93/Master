@@ -1,6 +1,8 @@
 #ifndef POKERSERVER_H
 #define POKERSERVER_H
 #include "ServerThread.h"
+#include "Deck.h"
+#include "Card.h"
 #include "Player.h"
 #include <QThread>
 #include <QDebug>
@@ -18,6 +20,7 @@ public:
 	explicit PokerServer(QObject * parent = 0);
 	void StartServer();
 	void delay(int);
+	void dealCards();
 	int currentPlayer = 0;									//thread id  of current player
 	QList<Player*> listOfPlayers;
 signals:
@@ -30,6 +33,9 @@ signals:
 	void updateCurrentPlayer(int num);						//notify socket threads of current player
 	void updateNoClients(int num);							//notify socket threads of number of clients
 	void changeGameStage(int num);							//notify socket that game stage changed ie pre flop to flop. 0 for pre flop, 1 for flop ....to change from pre flop to flop send 1
+
+	void updateHand(Card*, Card*, int);						//notify socket threads and update them with their current hand (car1,card2,socketDescriptor)
+	void updateCardsOnTable(Card**);							//notify socket threads and update them with current cards on table
 	//void mSignal();
 public slots :
 	void incrementCurrentPlayer();							//go to next player on the list
@@ -56,6 +62,12 @@ private:
 
 	bool bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
 	bool dealerBet = false;										//determines whether the dealer has already bet or not - used after preflop
+
+	bool isGameFinished = false;								//game is finished when 1 player has all the chips
+	bool isHandFinished = false;								//hand is finished when game stage river is finished
+
+	Deck playingDeck;										//playing deck 
+	Card* cardsOnTable[5];									//the card that gonna be dealt to table
 
 protected:
 	void incomingConnection(qintptr  socketDescriptor);

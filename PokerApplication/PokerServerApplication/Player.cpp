@@ -85,3 +85,15 @@ bool Player::isBet()
 {
 	return hasBet;
 }
+
+Card* Player::getMyCards(int n)
+{
+	return myCurrentHand[n];
+}
+
+void Player::setMyCurrentHand(Card *c, int num)
+{
+	if(num < 2)
+		myCurrentHand[num] = c;
+	
+}

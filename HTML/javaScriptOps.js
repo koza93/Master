@@ -6,7 +6,8 @@ $(document).ready(function () {
       
         //varaibles
         var myPlayerNumber;
-
+        var handCards;
+        var flopCards;
         pokerOperations.webChannelTest("Created JS Object");
 
         //notifies whenever myturn
@@ -52,6 +53,73 @@ $(document).ready(function () {
                 });
             }
 
+        });
+
+        //notifies hand is dealt
+        pokerOperations.notifyOnHandDealt.connect(function (returnValue) {
+            if (returnValue === true) {
+                //gets the cards dealt
+                for (var i = 0; i < 2; i++) {
+                    (function (index) {
+                        setTimeout(function () {
+                            pokerOperations.getHandCards(index, function (returnValue) {
+                                handCards = returnValue;
+                                var cards = 'card' + (6 + index);
+                                //alert(cards);
+                                document.getElementById(cards).innerHTML = '<img src="Cards' + handCards + '.png" style="width:7.8vw;height:15vh;">';
+                                cards = "#card" + (6+index);
+                                $(cards).css("visibility", "visible");
+                            });
+                        }, i * 200);
+                    })(i);
+                }
+            }
+        });
+
+        //notifies hand is dealt
+        pokerOperations.notifyOnFlopDealt.connect(function (returnValue) {
+            if (returnValue === true) {
+                //gets the cards dealt
+                for (var i = 0; i < 3; i++) {
+                    (function (index) {
+                        setTimeout(function () {
+                            pokerOperations.getTableCards(index, function (returnValue) {
+                                flopCards = returnValue;
+                                var cards = 'card' + (1 + index);
+                                //alert(flopCards);
+                                document.getElementById(cards).innerHTML = '<img src="Cards' + flopCards + '.png" style="width:7.8vw;height:15vh;">';
+                                cards = "#card" + (1 + index);
+                            });
+                        }, i * 200);
+                    })(i);
+                }
+            }
+        });
+
+        pokerOperations.notifyOnTurnDealt.connect(function (returnValue) {
+            if (returnValue === true) {
+                //gets the cards dealt
+                pokerOperations.getTableCards(3, function (returnValue) {
+                    flopCards = returnValue;
+                    var cards = 'card4';
+                    //alert(flopCards);
+                    document.getElementById(cards).innerHTML = '<img src="Cards' + flopCards + '.png" style="width:7.8vw;height:15vh;">';
+                    cards = "#card4";
+                });
+            }
+        });
+
+        pokerOperations.notifyOnRiverDealt.connect(function (returnValue) {
+            if (returnValue === true) {
+                //gets the cards dealt
+                pokerOperations.getTableCards(4, function (returnValue) {
+                    flopCards = returnValue;
+                    var cards = 'card5';
+                    //alert(flopCards);
+                    document.getElementById(cards).innerHTML = '<img src="Cards' + flopCards + '.png" style="width:7.8vw;height:15vh;">';
+                    cards = "#card5";
+                });
+            }
         });
 
         //notifies if player can check or call

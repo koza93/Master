@@ -48,188 +48,22 @@ void ServerThread::run()
 
 		//while playing pre flop
 		while (!isPreFlopFinished) {
-
-			//TODO - At some stage put all those if statements into a function
-			delay(500);
-
-			if (betFolded == true)
-			{
-				sendMessage("Fold:" + QString::number(previousPlayer));
-				betFolded = false;
-				delay(200);
-			}
-			if (betRaised == true) 
-			{
-				sendMessage("Raise:" + QString::number(previousPlayer));
-				betRaised = false;
-				delay(200);
-			}
-			if (betCalled == true)
-			{
-				sendMessage("Call:" + QString::number(previousPlayer));
-				betCalled = false;
-				delay(200);
-			}
-			if (betChecked == true)
-			{
-				sendMessage("Check:" + QString::number(previousPlayer));
-				betChecked = false;
-				delay(200);
-			}
-			if (betMade == true) {
-				betMade = false;
-				QString msg;
-				if (canCheck == true)
-				{
-					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:1";
-					qDebug() << "The msg is:" << msg;
-					sendMessage(msg);
-				}
-				else
-				{
-					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:0";
-					qDebug() << "The msg is:" << msg;
-					sendMessage(msg);
-				}
-			}
+			checkInputsFromServer();		
 		}
 		
 		//while playing flop
 		while (!isFlopFinished) {
-			delay(500);
-
-			if (betFolded == true)
-			{
-				sendMessage("Fold:" + QString::number(previousPlayer));
-				betFolded = false;
-				delay(200);
-			}
-			if (betRaised == true)
-			{
-				sendMessage("Raise:" + QString::number(previousPlayer));
-				betRaised = false;
-				delay(200);
-			}
-			if (betCalled == true)
-			{
-				sendMessage("Call:" + QString::number(previousPlayer));
-				betCalled = false;
-				delay(200);
-			}
-			if (betChecked == true)
-			{
-				sendMessage("Check:" + QString::number(previousPlayer));
-				betChecked = false;
-				delay(200);
-			}
-			if (betMade == true) {
-				betMade = false;
-				QString msg;
-				if (canCheck == true)
-				{
-					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:1";
-					qDebug() << "The msg is:" << msg;
-					sendMessage(msg);
-				}
-				else
-				{
-					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:0";
-					qDebug() << "The msg is:" << msg;
-					sendMessage(msg);
-				}
-			}
+			checkInputsFromServer();
 		}
 
 		//while playing turn
 		while (!isTurnFinished) {
-			delay(500);
-
-			if (betFolded == true)
-			{
-				sendMessage("Fold:" + QString::number(previousPlayer));
-				betFolded = false;
-				delay(200);
-			}
-			if (betRaised == true)
-			{
-				sendMessage("Raise:" + QString::number(previousPlayer));
-				betRaised = false;
-				delay(200);
-			}
-			if (betCalled == true)
-			{
-				sendMessage("Call:" + QString::number(previousPlayer));
-				betCalled = false;
-				delay(200);
-			}
-			if (betChecked == true)
-			{
-				sendMessage("Check:" + QString::number(previousPlayer));
-				betChecked = false;
-				delay(200);
-			}
-			if (betMade == true) {
-				betMade = false;
-				QString msg;
-				if (canCheck == true)
-				{
-					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:1";
-					qDebug() << "The msg is:" << msg;
-					sendMessage(msg);
-				}
-				else
-				{
-					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:0";
-					qDebug() << "The msg is:" << msg;
-					sendMessage(msg);
-				}
-			}
+			checkInputsFromServer();
 		}
 
 		//while playing river
 		while (!isRiverFinished) {
-			delay(500);
-
-			if (betFolded == true)
-			{
-				sendMessage("Fold:" + QString::number(previousPlayer));
-				betFolded = false;
-				delay(200);
-			}
-			if (betRaised == true)
-			{
-				sendMessage("Raise:" + QString::number(previousPlayer));
-				betRaised = false;
-				delay(200);
-			}
-			if (betCalled == true)
-			{
-				sendMessage("Call:" + QString::number(previousPlayer));
-				betCalled = false;
-				delay(200);
-			}
-			if (betChecked == true)
-			{
-				sendMessage("Check:" + QString::number(previousPlayer));
-				betChecked = false;
-				delay(200);
-			}
-			if (betMade == true) {
-				betMade = false;
-				QString msg;
-				if (canCheck == true)
-				{
-					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:1";
-					qDebug() << "The msg is:" << msg;
-					sendMessage(msg);
-				}
-				else
-				{
-					msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:0";
-					qDebug() << "The msg is:" << msg;
-					sendMessage(msg);
-				}
-			}
+			checkInputsFromServer();
 		}
 		isGameFinished = true;
 	}
@@ -371,6 +205,30 @@ void ServerThread::updateFoldMade(int playerNo) {
 
 }
 
+void ServerThread::updateMyCurrentHand(Card* c1, Card* c2, int sc)
+{
+	
+	if (socketDescriptor == sc)
+	{
+		myCurrentCards[0] = c1;
+		myCurrentCards[1] = c2;
+
+		qDebug() << "I have cards: " << myCurrentCards[0]->getFigure() << myCurrentCards[0]->getSuit() << "and " << myCurrentCards[1]->getFigure() << myCurrentCards[1]->getSuit();
+	}
+	handDealt = true;
+}
+
+void ServerThread::updateCardsOnTable(Card** cards)
+{
+	//cardsOnTable[0] = cards[0];
+	qDebug() << "CardsOnTable";
+	for (int i = 0; i < 5; i++)
+	{
+		cardsOnTable[i] = cards[i];
+		qDebug() << "I have cards: " << cardsOnTable[i]->getFigure() << cardsOnTable[i]->getSuit();
+	}
+}
+
 void ServerThread::delay(int millisecondsToWait)
 {
 	QTime dieTime = QTime::currentTime().addMSecs(millisecondsToWait);
@@ -383,17 +241,21 @@ void ServerThread::getSignal() {
 	sendMessage("GameStarted:"+ QString::number(numberOfClients) + ":" + QString::number(currentPlayer));
 }
 
-void ServerThread::changeGameStage(int gameStage) {  //1 = preflop, 2= flop ...
+void ServerThread::changeGameStage(int gameStage) 
+{  //1 = preflop, 2= flop ...
 	qDebug() << "got the SIGNALLLLLLLLL";
 	if (gameStage == 1) {
+		flopDealt = true;
 		isPreFlopFinished = true;
 		qDebug() << "changed prefloppppp";
 	}
 	if (gameStage == 2) {
+		turnDealt = true;
 		isFlopFinished = true;
 		qDebug() << "changed flop";
 	}
 	if (gameStage == 3) {
+		riverDealt = true;
 		isTurnFinished = true;
 		qDebug() << "changed turn";
 	}
@@ -404,6 +266,90 @@ void ServerThread::changeGameStage(int gameStage) {  //1 = preflop, 2= flop ...
 	//sendMessage("GameStarted:" + QString::number(numberOfClients) + ":" + QString::number(currentPlayer));
 }
 
+void ServerThread::checkInputsFromServer()
+{
+	//TODO - At some stage put all those if statements into a function
+	delay(500);
+
+	if (betFolded == true)
+	{
+		sendMessage("Fold:" + QString::number(previousPlayer));
+		betFolded = false;
+		delay(200);
+	}
+	if (betRaised == true)
+	{
+		sendMessage("Raise:" + QString::number(previousPlayer));
+		betRaised = false;
+		delay(200);
+	}
+	if (betCalled == true)
+	{
+		sendMessage("Call:" + QString::number(previousPlayer));
+		betCalled = false;
+		delay(200);
+	}
+	if (betChecked == true)
+	{
+		sendMessage("Check:" + QString::number(previousPlayer));
+		betChecked = false;
+		delay(200);
+	}
+	if (betMade == true) {
+		betMade = false;
+		QString msg;
+		if (canCheck == true)
+		{
+			msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:1";
+			qDebug() << "The msg is:" << msg;
+			sendMessage(msg);
+		}
+		else
+		{
+			msg = "ChangeTurn:" + QString::number(currentPlayer) + ":CanCheck:0";
+			qDebug() << "The msg is:" << msg;
+			sendMessage(msg);
+		}
+		delay(200);
+	}
+	if (handDealt == true) {
+		handDealt = false;
+		QString msg;
+		msg = "HandCards:" + QString(QChar::fromLatin1(myCurrentCards[0]->getSuit())) + QString(QChar::fromLatin1(myCurrentCards[0]->getFigure())) 
+			+ ":" + QString(QChar::fromLatin1(myCurrentCards[1]->getSuit())) + QString(QChar::fromLatin1(myCurrentCards[1]->getFigure()));
+		qDebug() << msg;
+		sendMessage(msg);
+		delay(200);
+	}
+
+	if (flopDealt == true) {
+		flopDealt = false;
+		//send first 3 cards
+		QString msg;
+		msg = "FlopCards:" + QString(QChar::fromLatin1(cardsOnTable[0]->getSuit())) + QString(QChar::fromLatin1(cardsOnTable[0]->getFigure()))
+			+ ":" + QString(QChar::fromLatin1(cardsOnTable[1]->getSuit())) + QString(QChar::fromLatin1(cardsOnTable[1]->getFigure()))
+			+ ":" + QString(QChar::fromLatin1(cardsOnTable[2]->getSuit())) + QString(QChar::fromLatin1(cardsOnTable[2]->getFigure()));
+		sendMessage(msg);
+		delay(200);
+	}
+
+	if (turnDealt == true) {
+		turnDealt = false;
+		//send first 3 cards
+		QString msg;
+		msg = "TurnCard:" + QString(QChar::fromLatin1(cardsOnTable[3]->getSuit())) + QString(QChar::fromLatin1(cardsOnTable[3]->getFigure()));
+		sendMessage(msg);
+		delay(200);
+	}
+	if (riverDealt == true) {
+		riverDealt = false;
+		//send first 3 cards
+		QString msg;
+		msg = "RiverCard:" + QString(QChar::fromLatin1(cardsOnTable[4]->getSuit())) + QString(QChar::fromLatin1(cardsOnTable[4]->getFigure()));
+		sendMessage(msg);
+		delay(200);
+	}
+}
 /*
 void ServerThread::aFunction() {
 	//while game is on
