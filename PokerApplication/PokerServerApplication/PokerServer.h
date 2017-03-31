@@ -20,7 +20,9 @@ public:
 	explicit PokerServer(QObject * parent = 0);
 	void StartServer();
 	void delay(int);
-	void dealCards();
+	void dealCards();										//deals cards to the table and the players
+	void checkForWinner();									//checks which player has best hand
+	void createCardTable(Card**);									//creates a table which is going to determine the best hand of the player
 	int currentPlayer = 0;									//thread id  of current player
 	QList<Player*> listOfPlayers;
 signals:
@@ -58,7 +60,7 @@ private:
 	int totalPot = 0;										//totalPot for a game
 	int currentBiggestBet = 0;
 
-	int numberOfPlayersToStartGame = 2;
+	int numberOfPlayersToStartGame = 6;
 
 	bool bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
 	bool dealerBet = false;										//determines whether the dealer has already bet or not - used after preflop

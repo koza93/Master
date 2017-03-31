@@ -4,6 +4,7 @@
 #include <QTime>
 #include <QCoreApplication>
 
+
 PokerServer::PokerServer(QObject * parent) : QTcpServer(parent)
 {
 
@@ -144,17 +145,6 @@ void PokerServer::incrementCurrentPlayer()
 	
 	listOfPlayers[globalI]->setAsBet(true);								//takes not of the fact that the player already bet this turn - needs to be changed for all players after game stage change
 
-	/***********************///this bit of code might not be needed if hadBet will work properly as i think it should
-	//if (listOfPlayers[globalI]->isBigBlind() && globalGameStage == 0)	//only used during preflop
-	//{
-	//	bigBlindBet = true;
-	//}
-	//
-	//if (listOfPlayers[globalI]->isDealer() && globalGameStage != 0)	// used after preflop
-	//{
-	//	dealerBet = true;
-	//}
-	/***********************/
 	globalI++;
 	if (globalI >= listOfPlayers.length())
 	{
@@ -224,6 +214,10 @@ void PokerServer::incrementCurrentPlayer()
 		}
 		
 		emit changeGameStage(globalGameStage);
+		if (globalGameStage == 4)
+		{
+			checkForWinner();							//TODO gonna have to figure out what happens when everyone folds
+		}
 	}
 }
 
@@ -309,4 +303,116 @@ void PokerServer::dealCards()
 	}
 
 	emit updateCardsOnTable(cardsOnTable);
+}
+
+void PokerServer::checkForWinner()
+{
+	for (int i = 0; i < listOfPlayers.size(); i++)
+	{
+		Card* all7OnCards[7];
+		for (int j = 0; j < 5; j++)
+		{
+			all7OnCards[j] = cardsOnTable[j];
+		}
+		for (int j = 5; j < 7; j++)
+		{
+			all7OnCards[j] = listOfPlayers[i]->getMyCards(j - 5);
+		}
+		createCardTable(all7OnCards);
+		/*
+		qDebug() << "All71 is:" << all7OnCards[0]->getFigure() << all7OnCards[0]->getSuit();
+		qDebug() << "All72 is:" << all7OnCards[1]->getFigure() << all7OnCards[1]->getSuit();
+		qDebug() << "All73 is:" << all7OnCards[2]->getFigure() << all7OnCards[2]->getSuit();
+		qDebug() << "All74 is:" << all7OnCards[3]->getFigure() << all7OnCards[3]->getSuit();
+		qDebug() << "All75 is:" << all7OnCards[4]->getFigure() << all7OnCards[4]->getSuit();
+		qDebug() << "All76 is:" << all7OnCards[5]->getFigure() << all7OnCards[5]->getSuit();
+		qDebug() << "All77 is:" << all7OnCards[6]->getFigure() << all7OnCards[6]->getSuit();
+		*/
+	}
+}
+
+void PokerServer::createCardTable(Card ** cards)
+{
+	//QList<QString> table;
+	QMap<QString, int> figureMap;
+	QMap<QString, int> suitMap;
+	//key, value for figures
+	figureMap["2"] = 0;
+	figureMap["3"] = 0;
+	figureMap["4"] = 0;
+	figureMap["5"] = 0;
+	figureMap["6"] = 0;
+	figureMap["7"] = 0;
+	figureMap["8"] = 0;
+	figureMap["9"] = 0;
+	figureMap["X"] = 0;
+	figureMap["J"] = 0;
+	figureMap["Q"] = 0;
+	figureMap["K"] = 0;
+	figureMap["A"] = 0;
+
+	//key, value for suits
+	suitMap["C"] = 0;
+	suitMap["S"] = 0;
+	suitMap["D"] = 0;
+	suitMap["H"] = 0;
+
+	for (int i = 0; i < 7; i++)
+	{
+		figureMap[QString(cards[i]->getFigure())] = figureMap.value(QString(cards[i]->getFigure())) + 1;
+	}
+	for (int i = 0; i < 7; i++)
+	{
+		suitMap[QString(cards[i]->getSuit())] = suitMap.value(QString(cards[i]->getSuit())) + 1;
+	}
+	/*
+	qDebug() << "figure values";
+	foreach(int figure, figureMap) {
+		qDebug() << figure;
+	}
+
+	qDebug() << "suit values";
+	foreach(int suit, suitMap) {
+		qDebug() << suit;
+	}*/
+
+	foreach(int suit, suitMap) {
+		if (suit == 5) {
+			qDebug() <<"Flush";
+		}
+	}
+
+	foreach(int figure, figureMap) {
+		if (figure == 4) {
+			qDebug() << "4aKind";
+		}
+	}
+
+	int pair = 0;
+	foreach(int figure, figureMap) {
+		if (figure == 3) {
+
+			foreach(int figure, figureMap) {
+				if (figure == 2) {
+					pair++;
+				}
+			}
+			if(pair > 0)
+				qDebug() << "FullHouse";
+			else
+				qDebug() << "3aKind";
+		}
+	}
+
+	pair = 0;
+	foreach(int figure, figureMap) {
+		if (figure == 2) {
+			pair++;
+		}
+		if (pair > 1)
+			qDebug() << "2pair";
+		else if(pair >0)
+			qDebug() << "pair";
+	}
+	qDebug() << "***************";
 }

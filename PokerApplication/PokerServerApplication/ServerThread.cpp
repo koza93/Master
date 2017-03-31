@@ -67,6 +67,7 @@ void ServerThread::run()
 		}
 		isGameFinished = true;
 	}
+	qDebug() << "I have got out of while isGameFinished loop";
 	exec();
 }
 

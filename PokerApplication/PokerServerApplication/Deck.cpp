@@ -1,4 +1,6 @@
 #include "Deck.h"
+#include <time.h>      
+#include <algorithm>
 #include <QDebug>
 
 Deck::Deck()
@@ -72,4 +74,9 @@ void Deck::displayDeckTest()
 Card* Deck::getCardFromDeck(int i)
 {
 	return theDeck.at(i);
+}
+
+void Deck::shuffleDeck() {
+	srand(time(0));
+	std::random_shuffle(theDeck.begin(), theDeck.end());
 }
