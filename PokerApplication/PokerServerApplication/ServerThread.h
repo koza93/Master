@@ -75,6 +75,7 @@ private:
 	bool flopDealt = false;
 	bool turnDealt = false;
 	bool riverDealt = false;
+	bool refreshDealt = false;
 
 	Card* myCurrentCards[2];
 	Card* cardsOnTable[5];

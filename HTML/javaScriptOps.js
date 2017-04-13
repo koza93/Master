@@ -55,6 +55,23 @@ $(document).ready(function () {
 
         });
 
+        //notifies hand is refreshed
+        pokerOperations.notifyOnRefreshDealt.connect(function (returnValue) {
+            if (returnValue === true) {
+                //gets the cards dealt
+                //show backcards
+                for (var i = 1; i <= 5; i++) {
+                    (function (index) {
+                        setTimeout(function () {
+                            var cards = "card" + index;
+                            document.getElementById(cards).innerHTML = '<img src="Cards.png" style="width:7.8vw;height:15vh;">';
+                            $(cards).css("visibility", "visible");
+                        }, i * 50);
+                    })(i);
+                }
+            }
+        });
+
         //notifies hand is dealt
         pokerOperations.notifyOnHandDealt.connect(function (returnValue) {
             if (returnValue === true) {

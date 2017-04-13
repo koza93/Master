@@ -18,6 +18,7 @@ signals :
 	void notifyOnFlopDealt(bool);										//notify js
 	void notifyOnTurnDealt(bool);										//notify js
 	void notifyOnRiverDealt(bool);										//notify js
+	void notifyOnRefreshDealt(bool);									//notify js
 	void error(QTcpSocket::SocketError error);
 public slots :
 	void readyRead();

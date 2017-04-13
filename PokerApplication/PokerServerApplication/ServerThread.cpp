@@ -245,6 +245,19 @@ void ServerThread::getSignal() {
 void ServerThread::changeGameStage(int gameStage) 
 {  //1 = preflop, 2= flop ...
 	qDebug() << "got the SIGNALLLLLLLLL";
+
+	//0 will happen on a reset from server
+	if (gameStage == 0) {
+		flopDealt = false;
+		isPreFlopFinished = false;
+		turnDealt = false;
+		isFlopFinished = false;
+		riverDealt = false;
+		isTurnFinished = false;
+		isRiverFinished = false;
+
+		refreshDealt = true;
+	}
 	if (gameStage == 1) {
 		flopDealt = true;
 		isPreFlopFinished = true;
@@ -347,6 +360,15 @@ void ServerThread::checkInputsFromServer()
 		//send first 3 cards
 		QString msg;
 		msg = "RiverCard:" + QString(QChar::fromLatin1(cardsOnTable[4]->getSuit())) + QString(QChar::fromLatin1(cardsOnTable[4]->getFigure()));
+		sendMessage(msg);
+		delay(200);
+	}
+
+	if (refreshDealt == true) {
+		refreshDealt = false;
+		//send message to reset cards
+		QString msg;
+		msg = "Refresh:Now"; //second argument is a dummy argument
 		sendMessage(msg);
 		delay(200);
 	}

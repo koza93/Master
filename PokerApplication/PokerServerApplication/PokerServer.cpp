@@ -63,59 +63,14 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	{
 		currentPlayer = socketDescriptor;
 		qDebug() << "First player is:" << currentPlayer;
-		listOfPlayers[0]->setAsDealer(true);				//the first player to join is always the dealer - the dealer token will be passed around
+		listOfPlayers[dealerCounter]->setAsDealer(true);				//the first player to join is always the dealer - the dealer token will be passed around
 	}
 	if (numberOfClients > 0)
 	{
 		qDebug() << "Emmiting signal from poker server";
-
-		//this line of code will have to be moved somewhere else it is going to initialise the big blind and small blind 
-		if (numberOfClients == numberOfPlayersToStartGame)
-		{
-			//set big blind and small blind
-			if (numberOfClients < 3 && numberOfClients > 1)
-			{
-				listOfPlayers[0]->setCurrentBet(smallBlind);
-				listOfPlayers[1]->setCurrentBet(bigBlind);
-				listOfPlayers[1]->setAsBigBlind(true);
-				currentBiggestBet = bigBlind;
-				currentPlayer = listOfPlayers[0]->getSocketDescriptor();
-				globalI = 0;										//globalI is used to increment and identifier of the player in the list of players
-			}
-			else if(numberOfClients == 3)
-			{
-				listOfPlayers[1]->setCurrentBet(smallBlind);
-				listOfPlayers[2]->setCurrentBet(bigBlind);
-				listOfPlayers[2]->setAsBigBlind(true);
-				currentBiggestBet = bigBlind;
-				currentPlayer = listOfPlayers[0]->getSocketDescriptor();
-				globalI = 0;
-			}
-			else
-			{
-				listOfPlayers[1]->setCurrentBet(smallBlind);
-				listOfPlayers[2]->setCurrentBet(bigBlind);
-				listOfPlayers[2]->setAsBigBlind(true);
-				currentBiggestBet = bigBlind;
-				currentPlayer = listOfPlayers[3]->getSocketDescriptor();
-				globalI = 3;
-			}
-		}
-
-		emit updateNoOfPlayersToStartGame(numberOfPlayersToStartGame);
-		emit updateNoClients(numberOfClients);
-		emit updateCurrentPlayer(currentPlayer);
-
-		//for now this piece of code creates a deck, i might fit it elsewhere 
-		if (numberOfClients == numberOfPlayersToStartGame) {
-			
-			playingDeck.shuffleDeck();
-			dealCards();
-			/*/
-			for (int i = 0; i < 5; i++) {
-				qDebug() << cardsOnTable[i]->getFigure() << cardsOnTable[i]->getSuit();
-			}*/
-		}
+		
+		initBlinds();
+		
 		//if i dont fit it elswhere i am going to send a signal containing the deck to all the threads and they can deal with it from there
 		//UPDATE:: gonna need to deal the cards first then send the signal
 		//UPDATE2:: so i think i gonna need to send a signal from each thread that will say its ready to receive the cards and then send the card with another signal
@@ -215,14 +170,36 @@ void PokerServer::incrementCurrentPlayer()
 		{
 			checkForWinner();							//TODO gonna have to figure out what happens when everyone folds
 
-			/*		The code that is going to reset the hand and start the next one gonna work at it after commit
-			//if no one has all the chips
-			globalGameStage = 0;
-			//delay(10000);
-			playingDeck.shuffleDeck();
-			dealCards();
-			emit changeGameStage(globalGameStage);
+			//code here will take note of who won, who lost and move the chips and so arround
+
+			/*
+			//TODO
+			//TODO
 			*/
+
+
+			//		The code that is going to reset the hand and start the next one
+			//if no one has all the chips
+			globalGameStage = 0;												//resetGlobalGameStage
+
+			//reset player attributes
+			for (int i = 0; i < listOfPlayers.length(); i++) {
+				listOfPlayers[i]->setCurrentBet(0);
+				listOfPlayers[i]->setAsBigBlind(false);
+				//gonna set dealer as false here as well
+				//listOfPlayers[dealerCounter]->setAsDealer(false);	
+				listOfPlayers[i]->setBestCards("");
+			}
+			//dealerCounter++;													//increment dealer counter
+			//if (dealerCounter == numberOfClients) { dealerCounter = 0; }		//just in case
+
+			//delay(10000);
+			
+			
+			emit changeGameStage(globalGameStage);								//change the global stage
+			initBlinds();
+			
+			
 		}
 	}
 }
@@ -1014,5 +991,52 @@ QString PokerServer::compareCards()
 			drawers += ":" + QString::number(pWBHsearch3[i]);
 		}
 		return drawers;				//returns draw : number of drawers : drawer x : drawer x1 ....    ie Draw:3:1:2:3  Draw:2:5:2
+	}
+}
+
+void PokerServer::initBlinds() 
+{
+	//this line of code will have to be moved somewhere else it is going to initialise the big blind and small blind 
+	if (numberOfClients == numberOfPlayersToStartGame)
+	{
+		//set big blind and small blind
+		if (numberOfClients < 3 && numberOfClients > 1)
+		{
+			listOfPlayers[0]->setCurrentBet(smallBlind);
+			listOfPlayers[1]->setCurrentBet(bigBlind);
+			listOfPlayers[1]->setAsBigBlind(true);
+			currentBiggestBet = bigBlind;
+			currentPlayer = listOfPlayers[0]->getSocketDescriptor();
+			globalI = 0;										//globalI is used to increment and identifier of the player in the list of players
+		}
+		else if (numberOfClients == 3)
+		{
+			listOfPlayers[1]->setCurrentBet(smallBlind);
+			listOfPlayers[2]->setCurrentBet(bigBlind);
+			listOfPlayers[2]->setAsBigBlind(true);
+			currentBiggestBet = bigBlind;
+			currentPlayer = listOfPlayers[0]->getSocketDescriptor();
+			globalI = 0;
+		}
+		else
+		{
+			listOfPlayers[1]->setCurrentBet(smallBlind);
+			listOfPlayers[2]->setCurrentBet(bigBlind);
+			listOfPlayers[2]->setAsBigBlind(true);
+			currentBiggestBet = bigBlind;
+			currentPlayer = listOfPlayers[3]->getSocketDescriptor();
+			globalI = 3;
+		}
+	}
+
+	emit updateNoOfPlayersToStartGame(numberOfPlayersToStartGame);
+	emit updateNoClients(numberOfClients);
+	emit updateCurrentPlayer(currentPlayer);
+
+	//for now this piece of code creates a deck, i might fit it elsewhere 
+	if (numberOfClients == numberOfPlayersToStartGame) {
+
+		playingDeck.shuffleDeck();
+		dealCards();
 	}
 }

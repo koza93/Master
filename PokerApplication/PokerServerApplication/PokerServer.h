@@ -22,6 +22,7 @@ public:
 	void delay(int);
 	void dealCards();										//deals cards to the table and the players
 	void checkForWinner();									//checks which player has best hand
+	void initBlinds();										//initialisesBlinds
 	QString compareCards();										//compare cards between players
 	QString createCardTable(Card**);						//creates a table which is going to determine the best hand of the player
 	int currentPlayer = 0;									//thread id  of current player
@@ -39,7 +40,7 @@ signals:
 	void changeGameStage(int num);							//notify socket that game stage changed ie pre flop to flop. 0 for pre flop, 1 for flop ....to change from pre flop to flop send 1
 
 	void updateHand(Card*, Card*, int);						//notify socket threads and update them with their current hand (car1,card2,socketDescriptor)
-	void updateCardsOnTable(Card**);							//notify socket threads and update them with current cards on table
+	void updateCardsOnTable(Card**);						//notify socket threads and update them with current cards on table
 	//void mSignal();
 public slots :
 	void incrementCurrentPlayer();							//go to next player on the list
@@ -52,7 +53,8 @@ public slots :
 	private slots :
 
 private:
-	int numberOfClients = 0;							
+	int numberOfClients = 0;	
+	int dealerCounter = 0;									//used to determine who is the dealer
 	int globalI = 0;										//used to increment through Currentplayer list
 	int globalGameStage = 0;								//determines stage of game {0 pre flop, 1 flop ....} to change from pre flop to flop send 1
 	int previousGlobalGameStage = 0;						//temp globalgamestage
@@ -61,7 +63,7 @@ private:
 	int totalChips = 0;										//perperson
 	int totalPot = 0;										//totalPot for a game
 	int currentBiggestBet = 0;
-
+	
 	int numberOfPlayersToStartGame = 3;
 
 	bool bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop

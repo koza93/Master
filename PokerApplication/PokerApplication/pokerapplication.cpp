@@ -168,6 +168,12 @@ void PokerApplication::readyRead()
 
 			notifyOnRiverDealt(true); //make a notify function to notify js of cards
 		}
+
+		if (dataList[0] == "Refresh") {
+			qDebug() << "Refresh";
+
+			notifyOnRefreshDealt(true); //make a notify function to notify js of cards
+		}
 		
 	}	
 	if (dataList.length() > 2) {
