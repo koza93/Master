@@ -51,6 +51,16 @@ void Player::setAsBet(bool b)
 	hasBet = b;
 }
 
+void Player::setBestCards(QString s)
+{
+	myBestCards = s;
+}
+
+QString Player::getBestCards()
+{
+	return myBestCards;
+}
+
 int Player::getSocketDescriptor()
 {
 	return socketDescriptor;

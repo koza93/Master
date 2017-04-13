@@ -22,8 +22,10 @@ public:
 	void delay(int);
 	void dealCards();										//deals cards to the table and the players
 	void checkForWinner();									//checks which player has best hand
-	void createCardTable(Card**);									//creates a table which is going to determine the best hand of the player
+	QString compareCards();										//compare cards between players
+	QString createCardTable(Card**);						//creates a table which is going to determine the best hand of the player
 	int currentPlayer = 0;									//thread id  of current player
+	int testI = 0;											//get rid of later gonna use it to test algoritm and input manual cards;
 	QList<Player*> listOfPlayers;
 signals:
 	void updateNoOfPlayersToStartGame(int num);				//notify socket threads how many players to start game;
@@ -60,7 +62,7 @@ private:
 	int totalPot = 0;										//totalPot for a game
 	int currentBiggestBet = 0;
 
-	int numberOfPlayersToStartGame = 2;
+	int numberOfPlayersToStartGame = 3;
 
 	bool bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
 	bool dealerBet = false;										//determines whether the dealer has already bet or not - used after preflop
@@ -70,6 +72,8 @@ private:
 
 	Deck playingDeck;										//playing deck 
 	Card* cardsOnTable[5];									//the card that gonna be dealt to table
+
+	
 
 protected:
 	void incomingConnection(qintptr  socketDescriptor);

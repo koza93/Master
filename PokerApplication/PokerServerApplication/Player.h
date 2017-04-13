@@ -22,10 +22,12 @@ class Player : public QObject
 		void setAsBigBlind(bool);					//set the attribute dealer to true or false - only one bigblind at a time
 		void setAsFolded(bool);					//set the attribute hasFolded to true or false 
 		void setAsBet(bool);					//set the attribute hasBet to true or false 
+		void setBestCards(QString);				//sets the best cards of the player for current hand
 
 		int getSocketDescriptor();
 		int getTotalChips();
 		int getCurrentBet();	
+		QString getBestCards();					// return best cards of player for current game
 		bool isDealer();
 		bool isBigBlind();
 		bool isFolded();
@@ -50,6 +52,7 @@ class Player : public QObject
 		bool hasBet = false;
 
 		Card* myCurrentHand[2];
+		QString myBestCards;
 };
 
 #endif // PLAYER_H

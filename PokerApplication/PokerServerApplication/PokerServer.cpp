@@ -11,8 +11,6 @@ PokerServer::PokerServer(QObject * parent) : QTcpServer(parent)
 
 }
 
-
-
 void PokerServer::StartServer()
 {
 
@@ -129,7 +127,6 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	qDebug() << "Number of clients: " << numberOfClients;
 }
 
-
 void PokerServer::delay(int millisecondsToWait)
 {
 	QTime dieTime = QTime::currentTime().addMSecs(millisecondsToWait);
@@ -217,6 +214,15 @@ void PokerServer::incrementCurrentPlayer()
 		if (globalGameStage == 4)
 		{
 			checkForWinner();							//TODO gonna have to figure out what happens when everyone folds
+
+			/*		The code that is going to reset the hand and start the next one gonna work at it after commit
+			//if no one has all the chips
+			globalGameStage = 0;
+			//delay(10000);
+			playingDeck.shuffleDeck();
+			dealCards();
+			emit changeGameStage(globalGameStage);
+			*/
 		}
 	}
 }
@@ -267,6 +273,7 @@ void PokerServer::detectCallWasMade(int socketDescriptor)
 	emit updateCallMade(socketDescriptor);
 
 }
+
 void PokerServer::detectCheckWasMade(int socketDescriptor)
 {
 	emit updateCheckMade(socketDescriptor);
@@ -318,20 +325,27 @@ void PokerServer::checkForWinner()
 		{
 			all7OnCards[j] = listOfPlayers[i]->getMyCards(j - 5);
 		}
-		createCardTable(all7OnCards);
-		/*
-		qDebug() << "All71 is:" << all7OnCards[0]->getFigure() << all7OnCards[0]->getSuit();
-		qDebug() << "All72 is:" << all7OnCards[1]->getFigure() << all7OnCards[1]->getSuit();
-		qDebug() << "All73 is:" << all7OnCards[2]->getFigure() << all7OnCards[2]->getSuit();
-		qDebug() << "All74 is:" << all7OnCards[3]->getFigure() << all7OnCards[3]->getSuit();
-		qDebug() << "All75 is:" << all7OnCards[4]->getFigure() << all7OnCards[4]->getSuit();
-		qDebug() << "All76 is:" << all7OnCards[5]->getFigure() << all7OnCards[5]->getSuit();
-		qDebug() << "All77 is:" << all7OnCards[6]->getFigure() << all7OnCards[6]->getSuit();
-		*/
+		//save the best hand of the player for current game
+		listOfPlayers[i]->setBestCards(createCardTable(all7OnCards));
+	}
+
+	QString winner = compareCards();
+	//qDebug() << winner;
+
+	QStringList winnerParams = winner.split(":");
+	if (winnerParams[0] == "Draw")
+	{
+		for (int i = 0; i < winnerParams[1].toInt(); i++) {
+			qDebug() << "Draw - Player no:" << listOfPlayers[winnerParams[i + 2].toInt()]->getSocketDescriptor();
+		}
+	}
+	else if (winnerParams[0] == "Win")
+	{
+		qDebug() << "Win - Player no:" << listOfPlayers[winnerParams[1].toInt()]->getSocketDescriptor();
 	}
 }
 
-void PokerServer::createCardTable(Card ** cards)
+QString PokerServer::createCardTable(Card ** cards)
 {
 	//TODO need to send the suits or figures with the winning combinatio, need to figure ot straights and change thios function so it returns stuff
 
@@ -341,6 +355,7 @@ void PokerServer::createCardTable(Card ** cards)
 	QMap<int, QString> cardMap;
 	
 	QString suitOrFigure ="";
+	QString highCard = "";
 	int pair = 0;
 	int triple = 0;
 	//key, value for figures
@@ -382,13 +397,28 @@ void PokerServer::createCardTable(Card ** cards)
 	/*
 	//testing cards with manual values
 	Card* cards[7];
-	cards[0] = new Card('C', 'A');
-	cards[1] = new Card('C', '6');
-	cards[2] = new Card('C', '5');
-	cards[3] = new Card('H', 'J');
-	cards[4] = new Card('C', 'X');
-	cards[5] = new Card('D', '9');
-	cards[6] = new Card('D', '8');
+	cards[0] = new Card('S', 'A');
+	cards[1] = new Card('D', 'K');
+	cards[2] = new Card('S', 'A');
+	cards[3] = new Card('D', 'K');
+	cards[4] = new Card('S', '3');
+
+	if (testI == 0)
+	{
+		cards[5] = new Card('D', '4');
+		cards[6] = new Card('D', '5');
+	}
+	if (testI == 1)
+	{
+		cards[5] = new Card('C', '6');
+		cards[6] = new Card('C', '7');
+	}
+	if (testI == 2)
+	{
+		cards[5] = new Card('D', 'J');
+		cards[6] = new Card('D', '4');
+	}
+	testI++;
 	*/
 	
 
@@ -430,16 +460,22 @@ void PokerServer::createCardTable(Card ** cards)
 				suitOrFigure += itC.value();
 			else 
 				suitOrFigure += ":" + itC.value();
+		
 		}
+		
 		else
 		{
-			suitOrFigure += "";
-			straightCards = 0;
+			if (straightCards < 5)
+			{
+				suitOrFigure = "";
+				straightCards = 0;
+			}
 		}
 	}
 	itC.toFront();
 	QString colour;
 	int strColCards = 0;
+	
 	//need to figure what to do with more than 5cards
 	if (straightCards > 4) {
 		while (itS.hasNext()) {
@@ -452,50 +488,51 @@ void PokerServer::createCardTable(Card ** cards)
 		QStringList coloredCards = suitOrFigure.split(":");
 		suitOrFigure = "";
 		for (int j = 0; j < coloredCards.size(); j++)
-		{
-			//qDebug() << coloredCards[j];
+		{	
 			for (int i = 0; i < 7; i++)
 			{
-				//qDebug() << coloredCards[j] << QString(cards[i]->getSuit());
-				if (QString(cards[i]->getFigure()) == coloredCards[j] ) {
-					//qDebug() << "mam0";
-					if (QString(cards[i]->getSuit()) == colour)
+				if (QString(cards[i]->getSuit()) == colour)     //this if statement is just a quick fix
+				{
+					if (QString(cards[i]->getFigure()) == coloredCards[j])
 					{
-						//qDebug()<<"mam1";
-						strColCards++;
-						if (strColCards == 1)
-							suitOrFigure += QString(cards[i]->getFigure());
-						else
-							suitOrFigure += ":"+ QString(cards[i]->getFigure());
-					}
-					
-					else
-					{
-						//qDebug() << "niemam1";
-						if (strColCards < 5)
+						if (QString(cards[i]->getSuit()) == colour)
 						{
-							suitOrFigure += "";
-							strColCards = 0;
+							strColCards++;
+							if (strColCards == 1)
+								suitOrFigure += QString(cards[i]->getFigure());
+							else
+								suitOrFigure += ":" + QString(cards[i]->getFigure());
 						}
+
 						else
 						{
-							qDebug() << "StraightFlush" << ":" << suitOrFigure.mid((suitOrFigure.size() - 9), 9);
-							suitOrFigure += "";
-							strColCards = 0;
+							if (strColCards < 5)
+							{
+								suitOrFigure += "";
+								strColCards = 0;
+							}
+							else
+							{
+								return  "StraightFlush:" + suitOrFigure.mid((suitOrFigure.size() - 9), 9);
+								suitOrFigure += "";
+								strColCards = 0;
+							}
 						}
 					}
 				}
 			}
 		}
 		if (strColCards > 4)
-		qDebug() << "StraightFlush" << ":"<< suitOrFigure.mid((suitOrFigure.size() - 9), 9);
+		{
+			return "StraightFlush:" + suitOrFigure.mid((suitOrFigure.size() - 9), 9);
+		}
 	}
 	
 	//4Akind/////////////////////////////////////////////
 	while (itF.hasNext()) {
 		itF.next();
 		if (itF.value() == 4) {
-			qDebug() << "4aKind" <<":"<< itF.key();
+			return "4aKind:" + itF.key() +":N"+":N";
 		}
 	}
 	itF.toFront();
@@ -532,7 +569,7 @@ void PokerServer::createCardTable(Card ** cards)
 		itC.toFront();
 		qSort(val.begin(), val.end());
 		suitOrFigure = cardMap[val[1]] + ":" + cardMap[val[0]];
-		qDebug() << "FullHouse" <<":"<<suitOrFigure;
+		return "FullHouse:"+suitOrFigure + ":N";
 	}
 	if (triple == 1)
 	{
@@ -563,20 +600,65 @@ void PokerServer::createCardTable(Card ** cards)
 			itC.toFront();
 			qSort(val.begin(), val.end());
 			suitOrFigure = arrayOfFigures[0] +":"+cardMap[val[1]] ;
-			qDebug() << "FullHouse" << ":" << suitOrFigure;
+			return "FullHouse:" + suitOrFigure + ":N";
 		}
 		else if (pair > 0)
-			qDebug() << "FullHouse" <<":"<<suitOrFigure;
+			return "FullHouse:" + suitOrFigure + ":N";
 	}
 		
 	//Flush//////////////////////////////////////////////
+	/*while (itS.hasNext()) {
+		itS.next();
+		if (itS.value() >= 5) {
+			return "Flush:" +itS.key();
+		}
+	}
+	itS.toFront();*/
+
+
+	//Flush v2///////////////////////////////////////////
+	
+	QString coloured = "N";
+	suitOrFigure = "";
+	//need to figure what to do with more than 5cards
 	while (itS.hasNext()) {
 		itS.next();
 		if (itS.value() >= 5) {
-			qDebug() << "Flush" << ":"<<itS.key();
+			coloured = itS.key();
 		}
 	}
 	itS.toFront();
+	if (coloured != "N")
+	{
+		//clear the figuremap
+		while (itF.hasNext()) {
+			itF.next();
+			figureMap[itF.key()] = 0;
+		}
+		itF.toFront();
+		for (int i = 0; i < 7; i++)
+		{
+			if (QString(cards[i]->getSuit()) == coloured)     //this if statement is just a quick fix
+			{
+				//fill in the card from map if coloured
+				figureMap[QString(cards[i]->getFigure())] = 1;
+			}
+		}
+
+		QString oldHighCard;
+		QString olderHighCard;
+		while (itC.hasNext()) {
+			itC.next();
+			if (figureMap[itC.value()] == 1) {
+				olderHighCard = oldHighCard;
+				oldHighCard = suitOrFigure;
+				suitOrFigure = itC.value();
+			}
+		}
+		return "Flush:" + suitOrFigure + ":" + oldHighCard + ":" + olderHighCard;
+
+
+	}
 	//Straight///////////////////////////////////////////
 	straightCards = 0;
 	while (itC.hasNext()) {
@@ -594,7 +676,7 @@ void PokerServer::createCardTable(Card ** cards)
 			}
 			else
 			{
-				qDebug() << "Straight" <<":"<< suitOrFigure.mid((suitOrFigure.size() - 9), 9);
+				return "Straight:" + suitOrFigure.mid((suitOrFigure.size() - 9), 9);
 				suitOrFigure += "";
 				straightCards = 0;
 			}
@@ -603,18 +685,30 @@ void PokerServer::createCardTable(Card ** cards)
 	itC.toFront();
 		//need to figure what to do with more than 5cards
 	if (straightCards > 4) {
-		qDebug() << "Straight" << ":" << suitOrFigure.mid((suitOrFigure.size() - 9), 9);
+		return "Straight:" + suitOrFigure.mid((suitOrFigure.size() - 9), 9);
 	}
+	suitOrFigure = "";
+	QString oldSuitOrFigure;
 	//3Akind/////////////////////////////////////////////
 	while (itF.hasNext()) {
 		itF.next();
+
 		if (itF.value() == 3) {
-			qDebug() << "3aKind" << ":" << itF.key();
+			figureMap[itF.key()] = 0;
+			while (itC.hasNext()) {
+				itC.next();
+				if (figureMap[itC.value()] == 1) {
+					oldSuitOrFigure = suitOrFigure;
+					suitOrFigure = ":" + itC.value();
+				}
+			}
+			return "3aKind:" + itF.key() + suitOrFigure + oldSuitOrFigure;
 		}
 	}
 	itF.toFront();
 	
 	//pair///////////////////////////////////////////////
+	
 	suitOrFigure = "";
 	pair = 0;
 	while (itF.hasNext()) {
@@ -648,7 +742,17 @@ void PokerServer::createCardTable(Card ** cards)
 		itC.toFront();
 		qSort(val.begin(), val.end());
 		suitOrFigure = cardMap[val[2]] + ":" + cardMap[val[1]];
-		qDebug() << "2pair" <<":"<< suitOrFigure;				//need to distinguish beteween highest 2pairs
+
+		//to determine the highest card less 2 pairs delete the pairs from the list
+		figureMap[cardMap[val[2]]] = 0;
+		figureMap[cardMap[val[1]]] = 0;
+		while (itC.hasNext()) {
+			itC.next();
+			if (figureMap[itC.value()] >= 1) {
+				highCard = ":" + itC.value();
+			}
+		}
+		return "2pair:" + suitOrFigure + highCard;				//need to distinguish beteween highest 2pairs
 	}
 	else if (pair > 1)
 	{
@@ -668,13 +772,247 @@ void PokerServer::createCardTable(Card ** cards)
 		itC.toFront();
 		qSort(val.begin(), val.end());
 		suitOrFigure = cardMap[val[1]] + ":" + cardMap[val[0]];
-		qDebug() << "2pair" << ":"<< suitOrFigure;
-	}
-	else if (pair > 0)
-		qDebug() << "pair" <<":"<< suitOrFigure;
-	itF.toFront();
-	/////////////////////////////////////////////////////
 
-	//TODO determine highest card + determine highest card for 1pair,2pair
-	qDebug() << "***************";
+		//to determine the highest card less 2 pairs delete the pairs from the list
+		figureMap[cardMap[val[1]]] = 0;
+		figureMap[cardMap[val[0]]] = 0;
+		while (itC.hasNext()) {
+			itC.next();
+			if (figureMap[itC.value()] == 1) {
+				highCard = ":" + itC.value();
+			}
+		}
+		return "2pair:" + suitOrFigure + highCard;
+	}
+	
+	else if (pair > 0) {
+		//to determine the highest card less 2 pairs delete the pairs from the list
+		highCard = "";
+		QString oldHighCard;
+			figureMap[suitOrFigure] = 0;
+		while (itC.hasNext()) {
+			itC.next();
+			if (figureMap[itC.value()] == 1) {
+				oldHighCard = highCard;
+				highCard = ":" + itC.value();
+			}
+		}
+		return "pair:" + suitOrFigure + highCard + oldHighCard;
+		itF.toFront();
+	}
+	/////////////////////////////////////////////////////
+	
+	//High Card
+	suitOrFigure = "";
+	QString oldHighCard;
+	QString olderHighCard;
+	while (itC.hasNext()) {
+		itC.next();
+		if (figureMap[itC.value()] == 1) {
+			olderHighCard = oldHighCard;
+			oldHighCard = suitOrFigure;
+			suitOrFigure = itC.value();
+		}
+	}
+	return "HighCard:" + suitOrFigure + ":" + oldHighCard + ":" + olderHighCard ;
+	
+	/////////////////////////////////
+	//qDebug() << "***************";
+}
+
+QString PokerServer::compareCards()
+{
+	QString theWinner = "";
+	QMap<QString, int> ranks;
+	QMap<QString, int> highCard;
+	
+	//key, value for figures
+	ranks["HighCard"] = 0;				
+	ranks["pair"] = 1;
+	ranks["2pair"] = 2;
+	ranks["3aKind"] = 3;
+	ranks["Straight"] = 4;
+	ranks["Flush"] = 5;
+	ranks["FullHouse"] = 6;
+	ranks["4aKind"] = 7;
+	ranks["StraightFlush"] = 8;
+
+	//sort in ascending order
+	highCard["N"] = -1;
+	highCard["2"] = 0;
+	highCard["3"] = 1;
+	highCard["4"] = 2;
+	highCard["5"] = 3;
+	highCard["6"] = 4;
+	highCard["7"] = 5;
+	highCard["8"] = 6;
+	highCard["9"] = 7;
+	highCard["X"] = 8;
+	highCard["J"] = 9;
+	highCard["Q"] = 10;
+	highCard["K"] = 11;
+	highCard["A"] = 12;
+	
+	QList<QStringList> listOfHands;
+	int highestRank = 0;
+	//get the highest rank out of each player put the parameters into stringlist and put the string list into a qlist
+	for (int i = 0; i < listOfPlayers.size(); i++)
+	{
+		QStringList rankList;
+		qDebug() << listOfPlayers[i]->getBestCards();
+		rankList = listOfPlayers[i]->getBestCards().split(":");
+		listOfHands.append(rankList);
+	}
+
+	//debug
+	for (int i = 0; i < listOfHands.length(); i++)
+	{
+		qDebug() << listOfHands[i].at(0) << ":"<<listOfHands[i].at(1) <<":" <<listOfHands[i].at(2) ;
+	}
+
+	//get the highest rank in the list
+	for (int i = 0; i < listOfHands.length(); i++)
+	{
+		int rank = ranks[listOfHands[i].at(0)];
+		if (rank > highestRank)
+		{
+			highestRank = rank;
+		}
+	}
+
+	QList<int> playersWithBestHand;
+
+	// search which player/players had the highest rank, append them to list
+	for (int i = 0; i < listOfPlayers.size(); i++)
+	{
+		if (ranks[listOfHands[i].at(0)] == highestRank) {
+			playersWithBestHand.append(i);
+			//qDebug() << "Player: " << i << "appended";
+		}
+	}
+
+	//gonna reuse highestRank
+	highestRank = 0;
+
+	//if only one player has the highest rank he wins the hand
+	if (playersWithBestHand.size() == 1) {
+		qDebug() << "Win:Player: " << playersWithBestHand[0] << "has highest rank: " << listOfHands[playersWithBestHand[0]].at(0);
+		
+		return "Win:"+ QString::number(playersWithBestHand[0]);
+	}
+
+	//from here on im looking on the high cards ie 33384 > 2229X
+
+	//else determine who has stronger hand of the same rank
+	else
+	{
+		for (int i = 0; i < playersWithBestHand.size(); i++)
+		{
+			int rank = highCard[listOfHands[playersWithBestHand[i]].at(1)];
+			if (rank > highestRank)
+			{
+				highestRank = rank;
+			}
+		}
+	}
+
+	QList<int> pWBHsearch1; //playersWithBestHand search 1
+	
+	// search which player/players had the highest card 1st, append them to list
+	for (int i = 0; i <  playersWithBestHand.size(); i++)
+	{
+		if (highCard[listOfHands[playersWithBestHand[i]].at(1)] == highestRank) {
+			pWBHsearch1.append(playersWithBestHand[i]);
+			//qDebug() << "Player: " << i << "appended search1";
+		}
+	}
+
+
+	//gonna reuse highestRank
+	highestRank = 0;
+
+	//if only one player has the highest card at search 1 he wins the hand
+	if (pWBHsearch1.size() == 1) {
+		qDebug() << "Win:Player: " << pWBHsearch1[0] << "has highest rank: " << listOfHands[pWBHsearch1[0]].at(0) << ":"<< listOfHands[pWBHsearch1[0]].at(1);
+		return "Win:" + QString::number(pWBHsearch1[0]);
+	}
+
+	//round 2
+
+	//else determine who has the strongest second card ie second pair or highest card
+	else
+	{
+		for (int i = 0; i < pWBHsearch1.size(); i++)
+		{
+			int rank = highCard[listOfHands[pWBHsearch1[i]].at(2)];
+			if (rank > highestRank)
+			{
+				highestRank = rank;
+			}
+		}
+	}
+
+	QList<int> pWBHsearch2; //playersWithBestHand search 2
+
+	// search which player/players had the highest card 2nd, append them to list
+	for (int i = 0; i < pWBHsearch1.size(); i++)
+	{
+		if (highCard[listOfHands[pWBHsearch1[i]].at(2)] == highestRank) {
+			pWBHsearch2.append(pWBHsearch1[i]);
+			//qDebug() << "Player: " << i << "appended search2";
+		}
+	}
+
+	//gonna reuse highestRank
+	highestRank = 0;
+
+	//if only one player has the highest card at search 1 he wins the hand
+	if (pWBHsearch2.size() == 1) {
+		qDebug() << "Win:Player: " << pWBHsearch2[0] << "has highest rank: " << listOfHands[pWBHsearch2[0]].at(0) << ":" << listOfHands[pWBHsearch2[0]].at(1) << listOfHands[pWBHsearch2[0]].at(2);
+		return "Win:" + QString::number(pWBHsearch2[0]);
+	}
+
+	//round 3
+
+	//else determine who has the strongest third card ie highest card or second highest card;
+	else
+	{
+		for (int i = 0; i < pWBHsearch2.size(); i++)
+		{
+			int rank = highCard[listOfHands[pWBHsearch2[i]].at(3)];
+			if (rank > highestRank)
+			{
+				highestRank = rank;
+			}
+		}
+	}
+
+	QList<int> pWBHsearch3; //playersWithBestHand search 3
+
+	// search which player/players had the highest card 3rd, append them to list
+	for (int i = 0; i < pWBHsearch2.size(); i++)
+	{
+		if (highCard[listOfHands[pWBHsearch2[i]].at(3)] == highestRank) {
+			pWBHsearch3.append(pWBHsearch2[i]);
+			//qDebug() << "Player: " << i << "appended search 3";
+		}
+	}
+
+	//if only one player has the highest card at search 1 he wins the hand
+	if (pWBHsearch3.size() == 1) {
+		qDebug() << "Win:Player: " << pWBHsearch3[0] << "has highest rank: " << listOfHands[pWBHsearch3[0]].at(0) << ":" << listOfHands[pWBHsearch3[0]].at(1) << listOfHands[pWBHsearch3[0]].at(2) << listOfHands[pWBHsearch3[0]].at(3);
+		return "Win:" + QString::number(pWBHsearch3[0]);
+	}
+
+	else
+	{
+		QString drawers = "Draw";
+		//some draw code in a loop
+		for (int i = 0; i < pWBHsearch3.size(); i++)
+		{
+			qDebug() << "Player: " << pWBHsearch3[i] << "has drew";
+			drawers += ":" + QString::number(pWBHsearch3[i]);
+		}
+		return drawers;				//returns draw : number of drawers : drawer x : drawer x1 ....    ie Draw:3:1:2:3  Draw:2:5:2
+	}
 }
