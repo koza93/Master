@@ -42,6 +42,7 @@ signals:
 	void updateFoldMade(int);
 	void updateNumberClients(int num);
 	void updateCurrentPlayer(int num);
+	void updateAllPlayers(QVector<int>);
 	void updateNoOfPlayersToStartGame(int num);		//updates number of players needed to start a game
 	void changeGameStage(int gameStage);
 
@@ -58,7 +59,8 @@ private:
 	int previousPlayer = 0;
 	int betAmount = 0;
 	int numberOfPlayersToStart = 10;				//some reasonable number that will be changed by a lower value
-	
+	QVector<int>  allPlayerNumbers;
+
 	bool betMade = false;
 	bool betRaised = false;
 	bool betCalled = false;
@@ -76,6 +78,8 @@ private:
 	bool turnDealt = false;
 	bool riverDealt = false;
 	bool refreshDealt = false;
+
+	bool allPlayersUpdated = false;
 
 	Card* myCurrentCards[2];
 	Card* cardsOnTable[5];

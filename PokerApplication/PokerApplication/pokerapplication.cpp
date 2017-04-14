@@ -174,6 +174,19 @@ void PokerApplication::readyRead()
 
 			notifyOnRefreshDealt(true); //make a notify function to notify js of cards
 		}
+
+		if (dataList[0] == "AllPlayers") {
+			qDebug() << "Allplayers";
+			for (int i = 0; i < numberOfPlayers; i++) {
+				allPlayerNumbers.append(dataList[i + 1].toInt());
+			}
+			for (int i = 0; i < numberOfPlayers; i++) {
+				notifyOnAllPlayersConnected(i, allPlayerNumbers.at(i));
+			}
+			//need to fill in the table for players in js before showing the cards
+			notifyOnAssignId(true);
+			
+		}
 		
 	}	
 	if (dataList.length() > 2) {
@@ -221,6 +234,7 @@ void PokerApplication::readyRead()
 
 			notifyOnFlopDealt(true); //make a notify function to notify js of cards
 		}
+
 	}
 	
 }
@@ -251,6 +265,17 @@ int PokerApplication::getPlayerNumber()
 	return myClientNumber;
 }
 
+int *PokerApplication::getAllPlayerNumbers()
+{
+	int *arrayP = new int[numberOfPlayers];
+	qDebug() << "Machupichu";
+	for (int i = 0; i < allPlayerNumbers.size(); i++) {
+		arrayP[i] = allPlayerNumbers.at(i);
+		qDebug() << "Arr" << i << "here " << arrayP[i];
+	}
+	return arrayP;
+}
+
 void PokerApplication::sendCheckButtonClicked() {
 	QString msg = "Check:"+ QString::number(myClientNumber);
 	QByteArray message = msg.toStdString().c_str();
@@ -258,8 +283,8 @@ void PokerApplication::sendCheckButtonClicked() {
 	socket->write(message);
 }
 
-void PokerApplication::sendRaiseButtonClicked() {
-	QString msg = "Raise:" + QString::number(myClientNumber) +":50" ;   //note hardcoded 50 raise for now - change when i have actual gui code written
+void PokerApplication::sendRaiseButtonClicked(int bet) {
+	QString msg = "Raise:" + QString::number(myClientNumber) +":" + QString::number(bet) ;   //note hardcoded 50 raise for now - change when i have actual gui code written
 	QByteArray message = msg.toStdString().c_str();
 	qDebug() << msg;
 	socket->write(message);
@@ -275,4 +300,13 @@ void PokerApplication::callFoldButtonClicked() {
 	QString msg = "Call:" + QString::number(myClientNumber);
 	QByteArray message = msg.toStdString().c_str();
 	socket->write(message);
+}
+
+void PokerApplication::delay(int millisecondsToWait)
+{
+	QTime dieTime = QTime::currentTime().addMSecs(millisecondsToWait);
+	while (QTime::currentTime() < dieTime)
+	{
+		QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+	}
 }

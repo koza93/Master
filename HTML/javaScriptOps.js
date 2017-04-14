@@ -5,9 +5,13 @@ $(document).ready(function () {
         window.pokerOperations = channel.objects.pokerOperations;
       
         //varaibles
-        var myPlayerNumber;
+        var numOfPlayers;
+        var myPlayerNumber;         //thread number
+        var myArrayNumber           //number in the array
         var handCards;
         var flopCards;
+        var arrayOfPlayers = {};
+        var seatArray = {};
         pokerOperations.webChannelTest("Created JS Object");
 
         //notifies whenever myturn
@@ -19,22 +23,23 @@ $(document).ready(function () {
                 $(".theBetting").css("visibility", "hidden");
             }
         });
+        pokerOperations.notifyOnAllPlayersConnected.connect(function (returnValue, returnValue1) {
+            arrayOfPlayers[returnValue] = returnValue1;
+        });
+
+
         //notifies whenever myturn
         pokerOperations.notifyOnGameStarted.connect(function (returnValue) {
             if (returnValue === true) {
                 $(".theGameplay").css("visibility", "visible");
                 //to set timeout
-                var numOfPlayers;
+
+
                 pokerOperations.getNumberOfPlayers(function (returnValue) {
                     numOfPlayers = returnValue;
 
-                    //show players connected
-                    $("#seatTaken6").css("visibility", "visible");
-                    for (var i = 1; i < numOfPlayers; i++) {
+                   
 
-                        var seat = "#seatTaken" + i;
-                        $(seat).css("visibility", "visible");
-                    }
                     //show backcards
                     for (var i = 1; i <= 5; i++) {
                         (function (index) {
@@ -53,6 +58,52 @@ $(document).ready(function () {
                 });
             }
 
+
+        });
+
+        //notify of total chips
+        pokerOperations.notifyOnAssignId.connect(function (returnValue) {
+            if (returnValue === true) {
+
+                for (var i = 0; i < numOfPlayers; i++) {
+
+                    if (myPlayerNumber == arrayOfPlayers[i]) {
+                        myArrayNumber = i;
+                        // alert(myArrayNumber);
+                    }
+                }
+
+
+
+                window.tempMyArrayNumber = myArrayNumber;
+                for (var i = 0; i < 5 ; i++) {
+                    if ((tempMyArrayNumber + 1 + i) === 6) {
+                        tempMyArrayNumber = myArrayNumber-6;
+                    }
+                    
+                    seatArray[i] = tempMyArrayNumber + 1 + i;
+                   
+                    alert(i + " " + seatArray[i]);
+                    //alert(seatArray[i] + "=" + (tempMyArrayNumber + 1 + i));
+                }
+
+                //show players connected
+                document.getElementById('seatTaken6').innerHTML = '<img src="Seat3.png" style="width:10.3vw;height:14vh;"><label>' + arrayOfPlayers[myArrayNumber] + '</label>';
+                $("#seatTaken6").css("visibility", "visible");
+                //alert(numOfPlayers);
+                for (var i = 0; i < numOfPlayers; i++) {
+                    for (var j = 0 ; j < 5; j++) {
+                        if (seatArray[j] === i) {
+                            var seat = "#seatTaken" + (j + 1);
+
+                            //alert(seat);
+                            document.getElementById('seatTaken' + (j + 1)).innerHTML = '<img src="Seat2.png" style="width:10.3vw;height:14vh;"><label>' + arrayOfPlayers[i] + '</label>';
+                            $(seat).css("visibility", "visible");
+                            
+                        }
+                    }
+                }
+            }
         });
 
         //notifies hand is refreshed

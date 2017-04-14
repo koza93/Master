@@ -28,6 +28,7 @@ public:
 	int currentPlayer = 0;									//thread id  of current player
 	int testI = 0;											//get rid of later gonna use it to test algoritm and input manual cards;
 	QList<Player*> listOfPlayers;
+	QVector<int> allPlayersVector;
 signals:
 	void updateNoOfPlayersToStartGame(int num);				//notify socket threads how many players to start game;
 	void updateBetMade(bool);								//notify socket threads bet was made (int canCheck) 0 for call, 1 for check
@@ -36,6 +37,7 @@ signals:
 	void updateCheckMade(int num);							//notify socket threads a check was made (int who_made_the_call)
 	void updateFoldMade(int num);							//notify socket threads of current player fold
 	void updateCurrentPlayer(int num);						//notify socket threads of current player
+	void updateAllPlayers(QVector<int>);					// notify socket of all thread numbers
 	void updateNoClients(int num);							//notify socket threads of number of clients
 	void changeGameStage(int num);							//notify socket that game stage changed ie pre flop to flop. 0 for pre flop, 1 for flop ....to change from pre flop to flop send 1
 
@@ -64,7 +66,7 @@ private:
 	int totalPot = 0;										//totalPot for a game
 	int currentBiggestBet = 0;
 	
-	int numberOfPlayersToStartGame = 3;
+	int numberOfPlayersToStartGame = 5;
 
 	bool bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
 	bool dealerBet = false;										//determines whether the dealer has already bet or not - used after preflop

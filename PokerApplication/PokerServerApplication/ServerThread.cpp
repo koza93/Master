@@ -172,6 +172,12 @@ void ServerThread::updateCurrentPlayer(int num) {
 	
 }
 
+void ServerThread::updateAllPlayers(QVector<int> v) {
+	allPlayersUpdated = true;
+	qDebug() << "Updating all player thread numbers";
+	allPlayerNumbers = v;
+}
+
 void ServerThread::updateBetMade(bool c) {
 	canCheck = c;
 	betMade = true;
@@ -240,6 +246,7 @@ void ServerThread::delay(int millisecondsToWait)
 }
 void ServerThread::getSignal() {	
 	sendMessage("GameStarted:"+ QString::number(numberOfClients) + ":" + QString::number(currentPlayer));
+	delay(200);
 }
 
 void ServerThread::changeGameStage(int gameStage) 
@@ -285,6 +292,15 @@ void ServerThread::checkInputsFromServer()
 	//TODO - At some stage put all those if statements into a function
 	delay(500);
 
+	if (allPlayersUpdated == true) {
+		QString msg = "AllPlayers";
+		for (int i = 0; i < allPlayerNumbers.size(); ++i) {
+			msg += ":"+ QString::number(allPlayerNumbers.at(i));
+		}
+		sendMessage(msg);
+		allPlayersUpdated = false;
+		delay(1000);
+	}
 	if (betFolded == true)
 	{
 		sendMessage("Fold:" + QString::number(previousPlayer));

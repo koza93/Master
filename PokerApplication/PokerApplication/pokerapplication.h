@@ -19,6 +19,8 @@ signals :
 	void notifyOnTurnDealt(bool);										//notify js
 	void notifyOnRiverDealt(bool);										//notify js
 	void notifyOnRefreshDealt(bool);									//notify js
+	void notifyOnAllPlayersConnected(int,int);							//notify js
+	void notifyOnAssignId(bool);										//notify js
 	void error(QTcpSocket::SocketError error);
 public slots :
 	void readyRead();
@@ -34,14 +36,15 @@ public:
 	Q_INVOKABLE bool checkUserAndPassword(QString usr, QString psd);    //check for user name and password called form js
 	Q_INVOKABLE bool joinTable();										//try to join table called from js
 	Q_INVOKABLE int getNumberOfPlayers();								//return number of players for js
-	Q_INVOKABLE int getPlayerNumber();									//return player number for js
+	Q_INVOKABLE int getPlayerNumber();									//return player number for js thread id
+	Q_INVOKABLE int* getAllPlayerNumbers();						//return all player numbers to js actual thread ids
 	Q_INVOKABLE QString getHandCards(int n);							//return player number for js
 	Q_INVOKABLE QString getTableCards(int n);							//return player number for js
 	Q_INVOKABLE void sendCheckButtonClicked();							//send a message to server notifying of check button clicked
-	Q_INVOKABLE void sendRaiseButtonClicked();							//send a message to server notifying of raise button clicked
+	Q_INVOKABLE void sendRaiseButtonClicked(int);							//send a message to server notifying of raise button clicked
 	Q_INVOKABLE void sendFoldButtonClicked();							//send a message to server notifying of fold button clicked
 	Q_INVOKABLE void callFoldButtonClicked();							//send a message to server notifying of call button clicked
-
+	Q_INVOKABLE void delay(int);
 
 private:
 	Q_INVOKABLE bool AcquireConnectionDb();								//acquires connection to db
@@ -53,6 +56,7 @@ private:
 	bool isUserLoggedIn = false;
 	QTcpSocket *socket;
 	int myClientNumber = 0;												//thread number from server
+	QVector<int>  allPlayerNumbers;									//vector containing 
 	bool isGameStarted = false;											//will be received from server 
 	bool isMyTurn = false;												//will be received from server 
 	int numberOfPlayers = 0;											//will be recieved from server

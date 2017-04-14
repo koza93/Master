@@ -42,6 +42,7 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	connect(this, SIGNAL(updateNoClients(int)), thread, SLOT(updateNumberClients(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateNoOfPlayersToStartGame(int)), thread, SLOT(updateNoOfPlayersToStartGame(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCurrentPlayer(int)), thread, SLOT(updateCurrentPlayer(int)), Qt::QueuedConnection);
+	connect(this, SIGNAL(updateAllPlayers(QVector<int>)), thread, SLOT(updateAllPlayers(QVector<int>)), Qt::DirectConnection);
 	connect(this, SIGNAL(changeGameStage(int)), thread, SLOT(changeGameStage(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateBetMade(bool)), thread, SLOT(updateBetMade(bool)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateFoldMade(int)), thread, SLOT(updateFoldMade(int)), Qt::QueuedConnection);
@@ -59,6 +60,10 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	thread->start();
 	listOfPlayers.append(new Player(socketDescriptor, 500));
 	numberOfClients++;
+
+	//will use this vector to send all player numbers to application
+	allPlayersVector.append(socketDescriptor);
+
 	if (numberOfClients == 1)
 	{
 		currentPlayer = socketDescriptor;
@@ -996,6 +1001,7 @@ QString PokerServer::compareCards()
 
 void PokerServer::initBlinds() 
 {
+	
 	//this line of code will have to be moved somewhere else it is going to initialise the big blind and small blind 
 	if (numberOfClients == numberOfPlayersToStartGame)
 	{
@@ -1032,6 +1038,7 @@ void PokerServer::initBlinds()
 	emit updateNoOfPlayersToStartGame(numberOfPlayersToStartGame);
 	emit updateNoClients(numberOfClients);
 	emit updateCurrentPlayer(currentPlayer);
+	emit updateAllPlayers(allPlayersVector);
 
 	//for now this piece of code creates a deck, i might fit it elsewhere 
 	if (numberOfClients == numberOfPlayersToStartGame) {
