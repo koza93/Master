@@ -33,13 +33,13 @@ signals:
 	void updateNoOfPlayersToStartGame(int num);				//notify socket threads how many players to start game;
 	void updateBetMade(bool);								//notify socket threads bet was made (int canCheck) 0 for call, 1 for check
 	void updateRaiseMade(int, int);							//notify socket threads a raise was made (int who_made_the_raise,int amount_raised)
-	void updateCallMade(int num);							//notify socket threads a call was made (int who_made_the_call)
+	void updateCallMade(int num, int);							//notify socket threads a call was made (int who_made_the_call)
 	void updateCheckMade(int num);							//notify socket threads a check was made (int who_made_the_call)
 	void updateFoldMade(int num);							//notify socket threads of current player fold
 	void updateCurrentPlayer(int num);						//notify socket threads of current player
-	void updateAllPlayers(QVector<int>);					// notify socket of all thread numbers
+	void updateAllPlayers(QVector<int>, int, int);					// notify socket of all thread numbers
 	void updateNoClients(int num);							//notify socket threads of number of clients
-	void changeGameStage(int num);							//notify socket that game stage changed ie pre flop to flop. 0 for pre flop, 1 for flop ....to change from pre flop to flop send 1
+	void changeGameStage(int num, QVector<int>);		//notify socket that game stage changed ie pre flop to flop. 0 for pre flop, 1 for flop ....to change from pre flop to flop send 1
 
 	void updateHand(Card*, Card*, int);						//notify socket threads and update them with their current hand (car1,card2,socketDescriptor)
 	void updateCardsOnTable(Card**);						//notify socket threads and update them with current cards on table
@@ -66,7 +66,7 @@ private:
 	int totalPot = 0;										//totalPot for a game
 	int currentBiggestBet = 0;
 	
-	int numberOfPlayersToStartGame = 5;
+	int numberOfPlayersToStartGame = 4;
 
 	bool bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
 	bool dealerBet = false;										//determines whether the dealer has already bet or not - used after preflop

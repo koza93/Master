@@ -28,17 +28,35 @@ $(document).ready(function () {
         });
 
 
+        pokerOperations.notifyOnBet.connect(function (playerID, chips) {
+            
+            var currentNo;
+            if (playerID == myPlayerNumber) {
+                document.getElementById('seatTaken6').innerHTML = '<img src="Seat3.png" style="width:10.3vw;height:14vh;"><label>' + myPlayerNumber + "bet" + chips + '</label>';
+            }
+            else {
+                for (var i = 0; i < 5; i++) {
+                    if (playerID === arrayOfPlayers[i]) {
+                        currentNo = i;
+                        //alert(currentNo);
+                        for (var j = 0; j < 5; j++) {
+                            if (seatArray[j] == i) {
+                                document.getElementById('seatTaken' + (j + 1)).innerHTML = '<img src="Seat2.png" style="width:10.3vw;height:14vh;"><label>' + arrayOfPlayers[i]+ "bet"+chips + '</label>';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+
         //notifies whenever myturn
         pokerOperations.notifyOnGameStarted.connect(function (returnValue) {
             if (returnValue === true) {
                 $(".theGameplay").css("visibility", "visible");
                 //to set timeout
-
-
                 pokerOperations.getNumberOfPlayers(function (returnValue) {
-                    numOfPlayers = returnValue;
-
-                   
+                numOfPlayers = returnValue;
 
                     //show backcards
                     for (var i = 1; i <= 5; i++) {
@@ -51,14 +69,11 @@ $(document).ready(function () {
                     }
                     alert("Game Started");
                 });
-
                 //gets the player thread number from the c++ code
                 pokerOperations.getPlayerNumber(function (returnValue) {
                     myPlayerNumber = returnValue;
                 });
             }
-
-
         });
 
         //notify of total chips
@@ -72,9 +87,6 @@ $(document).ready(function () {
                         // alert(myArrayNumber);
                     }
                 }
-
-
-
                 window.tempMyArrayNumber = myArrayNumber;
                 for (var i = 0; i < 5 ; i++) {
                     if ((tempMyArrayNumber + 1 + i) === 6) {
@@ -83,7 +95,7 @@ $(document).ready(function () {
                     
                     seatArray[i] = tempMyArrayNumber + 1 + i;
                    
-                    alert(i + " " + seatArray[i]);
+                    //alert(i + " " + seatArray[i]);
                     //alert(seatArray[i] + "=" + (tempMyArrayNumber + 1 + i));
                 }
 
@@ -250,10 +262,11 @@ $(document).ready(function () {
 
     $("#raiseButton").click(function () {
         //$("p").hide();
-        pokerOperations.sendRaiseButtonClicked();
-        $("#checkButton").css("visibility", "hidden");
-        $("#callButton").css("visibility", "hidden");
-
+        if (document.getElementById('raise').value > 49) {
+            pokerOperations.sendRaiseButtonClicked(document.getElementById('raise').value);
+            $("#checkButton").css("visibility", "hidden");
+            $("#callButton").css("visibility", "hidden");
+        }
     });
 
     $("#foldButton").click(function () {

@@ -21,6 +21,9 @@ signals :
 	void notifyOnRefreshDealt(bool);									//notify js
 	void notifyOnAllPlayersConnected(int,int);							//notify js
 	void notifyOnAssignId(bool);										//notify js
+
+	void notifyOnBet(int, int);											//notify js
+
 	void error(QTcpSocket::SocketError error);
 public slots :
 	void readyRead();

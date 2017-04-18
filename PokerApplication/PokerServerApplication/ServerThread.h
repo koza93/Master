@@ -37,14 +37,14 @@ signals:
 	void sendMessage(QString msg);
 	void updateBetMade(bool);						//can check 1, can call 0
 	void updateRaiseMade(int, int);
-	void updateCallMade(int);
+	void updateCallMade(int, int);
 	void updateCheckMade(int);
 	void updateFoldMade(int);
 	void updateNumberClients(int num);
 	void updateCurrentPlayer(int num);
-	void updateAllPlayers(QVector<int>);
+	void updateAllPlayers(QVector<int>, int bb, int sb);		//vector containing thread numbers of all players , thread number of big blind, thread number of small blind
 	void updateNoOfPlayersToStartGame(int num);		//updates number of players needed to start a game
-	void changeGameStage(int gameStage);
+	void changeGameStage(int gameStage, QVector<int>);
 
 	void updateMyCurrentHand(Card*, Card*,int);		//updates current hand if cards are dealt for this thread
 	void updateCardsOnTable(Card**);				//update current card on table if dealt
@@ -55,11 +55,17 @@ private:
 	QTcpSocket *socket;
 	int socketDescriptor;
 	int numberOfClients = 0;
+	int currentBB = 0;								//thread number of current Big Blind
+	int currentSB = 0;								//thread number of current Small Blind
+	int bigBlind = 50;								//amount of chips for bb TODO code to actually update this value from the main server thread
+	int smallBlind = 25;
 	int currentPlayer = 0;
 	int previousPlayer = 0;
 	int betAmount = 0;
+	int allBetAmount = 0;							//bet amount used by all threads to read the total bet amoutn from the server
 	int numberOfPlayersToStart = 10;				//some reasonable number that will be changed by a lower value
 	QVector<int>  allPlayerNumbers;
+	QVector<int>  playersToUpdate;					//array of players that need to updated at a time
 
 	bool betMade = false;
 	bool betRaised = false;

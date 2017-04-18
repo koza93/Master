@@ -235,6 +235,17 @@ void PokerApplication::readyRead()
 			notifyOnFlopDealt(true); //make a notify function to notify js of cards
 		}
 
+		if (dataList[0] == "Raise" || dataList[0] == "Call" || dataList[0] == "Update") {
+			int currentPlayer = 0;			//this is the player that has just made a bet not an actuall current player making decision
+			int theBet = 0;					//total no of chips this player has placed on the table
+			qDebug() << "Bet on table" + dataList[1] + ":" + dataList[2];
+			
+			currentPlayer = dataList[1].toInt();
+			theBet = dataList[2].toInt();
+
+			notifyOnBet(currentPlayer,theBet); //make a notify function to notify js of cards
+		}
+
 	}
 	
 }

@@ -172,10 +172,12 @@ void ServerThread::updateCurrentPlayer(int num) {
 	
 }
 
-void ServerThread::updateAllPlayers(QVector<int> v) {
+void ServerThread::updateAllPlayers(QVector<int> v, int bb, int sb) {
 	allPlayersUpdated = true;
 	qDebug() << "Updating all player thread numbers";
 	allPlayerNumbers = v;
+	currentBB = bb;
+	currentSB = sb;
 }
 
 void ServerThread::updateBetMade(bool c) {
@@ -187,6 +189,7 @@ void ServerThread::updateBetMade(bool c) {
 void ServerThread::updateRaiseMade(int playerNo, int amount) {
 	previousPlayer = playerNo;
 	betRaised = true;
+	allBetAmount = amount;
 	qDebug() << "Thread:" << this->socketDescriptor << "RaiseMade By: " <<playerNo << "Amount: " << amount;
 	
 }
@@ -198,9 +201,10 @@ void ServerThread::updateCheckMade(int playerNo) {
 
 }
 
-void ServerThread::updateCallMade(int playerNo) {
+void ServerThread::updateCallMade(int playerNo , int amount) {
 	previousPlayer = playerNo;
 	betCalled = true;
+	allBetAmount = amount;
 	qDebug() << "Thread:" << this->socketDescriptor << "CallMade By: " << playerNo;
 
 }
@@ -249,9 +253,11 @@ void ServerThread::getSignal() {
 	delay(200);
 }
 
-void ServerThread::changeGameStage(int gameStage) 
+void ServerThread::changeGameStage(int gameStage, QVector<int> pToUpdate)
 {  //1 = preflop, 2= flop ...
 	qDebug() << "got the SIGNALLLLLLLLL";
+
+	playersToUpdate = pToUpdate;
 
 	//0 will happen on a reset from server
 	if (gameStage == 0) {
@@ -300,6 +306,10 @@ void ServerThread::checkInputsFromServer()
 		sendMessage(msg);
 		allPlayersUpdated = false;
 		delay(1000);
+		sendMessage("Raise:" + QString::number(currentBB) + ":" + QString::number(bigBlind));
+		delay(1000);
+		sendMessage("Raise:" + QString::number(currentSB) + ":" + QString::number(smallBlind));
+		delay(1000);
 	}
 	if (betFolded == true)
 	{
@@ -309,13 +319,13 @@ void ServerThread::checkInputsFromServer()
 	}
 	if (betRaised == true)
 	{
-		sendMessage("Raise:" + QString::number(previousPlayer));
+		sendMessage("Raise:" + QString::number(previousPlayer) + ":" + QString::number(allBetAmount));///
 		betRaised = false;
 		delay(200);
 	}
 	if (betCalled == true)
 	{
-		sendMessage("Call:" + QString::number(previousPlayer));
+		sendMessage("Call:" + QString::number(previousPlayer) + ":" + QString::number(allBetAmount));
 		betCalled = false;
 		delay(200);
 	}
@@ -361,6 +371,12 @@ void ServerThread::checkInputsFromServer()
 			+ ":" + QString(QChar::fromLatin1(cardsOnTable[2]->getSuit())) + QString(QChar::fromLatin1(cardsOnTable[2]->getFigure()));
 		sendMessage(msg);
 		delay(200);
+
+		for (int i = 0; i < playersToUpdate.size(); ++i) {
+			sendMessage("Update:" + QString::number(playersToUpdate.at(i)) + ":0");
+			delay(200);
+		}
+		
 	}
 
 	if (turnDealt == true) {
@@ -370,6 +386,11 @@ void ServerThread::checkInputsFromServer()
 		msg = "TurnCard:" + QString(QChar::fromLatin1(cardsOnTable[3]->getSuit())) + QString(QChar::fromLatin1(cardsOnTable[3]->getFigure()));
 		sendMessage(msg);
 		delay(200);
+
+		for (int i = 0; i < playersToUpdate.size(); ++i) {
+			sendMessage("Update:" + QString::number(playersToUpdate.at(i)) + ":0");
+			delay(200);
+		}
 	}
 	if (riverDealt == true) {
 		riverDealt = false;
@@ -378,6 +399,11 @@ void ServerThread::checkInputsFromServer()
 		msg = "RiverCard:" + QString(QChar::fromLatin1(cardsOnTable[4]->getSuit())) + QString(QChar::fromLatin1(cardsOnTable[4]->getFigure()));
 		sendMessage(msg);
 		delay(200);
+
+		for (int i = 0; i < playersToUpdate.size(); ++i) {
+			sendMessage("Update:" + QString::number(playersToUpdate.at(i)) + ":0");
+			delay(200);
+		}
 	}
 
 	if (refreshDealt == true) {
@@ -387,6 +413,12 @@ void ServerThread::checkInputsFromServer()
 		msg = "Refresh:Now"; //second argument is a dummy argument
 		sendMessage(msg);
 		delay(200);
+
+		/*
+		for (int i = 0; i < playersToUpdate.size(); ++i) {
+			sendMessage("Update:" + QString::number(playersToUpdate.at(i)) + ":0");
+			delay(200);
+		}*/
 	}
 }
 /*

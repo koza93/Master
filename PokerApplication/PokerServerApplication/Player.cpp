@@ -41,6 +41,11 @@ void Player::setAsBigBlind(bool bb)
 	bigBlind = bb;
 }
 
+void Player::setAsSmallBlind(bool sb)
+{
+	smallBlind = sb;
+}
+
 void Player::setAsFolded(bool f)
 {
 	hasFolded = f;
@@ -84,6 +89,11 @@ bool Player::isDealer()
 bool Player::isBigBlind()
 {
 	return bigBlind;
+}
+
+bool Player::isSmallBlind()
+{
+	return smallBlind;
 }
 
 bool Player::isFolded()
