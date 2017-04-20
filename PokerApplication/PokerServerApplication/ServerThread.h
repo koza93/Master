@@ -36,12 +36,13 @@ signals:
 	void disconnected();
 	void sendMessage(QString msg);
 	void updateBetMade(bool);						//can check 1, can call 0
-	void updateRaiseMade(int, int);
-	void updateCallMade(int, int);
+	void updateRaiseMade(int, int, int, int);
+	void updateCallMade(int, int, int, int);
 	void updateCheckMade(int);
 	void updateFoldMade(int);
 	void updateNumberClients(int num);
 	void updateCurrentPlayer(int num);
+	void updateOnWin(int);
 	void updateAllPlayers(QVector<int>, int bb, int sb);		//vector containing thread numbers of all players , thread number of big blind, thread number of small blind
 	void updateNoOfPlayersToStartGame(int num);		//updates number of players needed to start a game
 	void changeGameStage(int gameStage, QVector<int>);
@@ -63,7 +64,10 @@ private:
 	int previousPlayer = 0;
 	int betAmount = 0;
 	int allBetAmount = 0;							//bet amount used by all threads to read the total bet amoutn from the server
+	int totalChips = 0;								//bet amount from server
+	int totalPot = 0;								//pot amount from serer
 	int numberOfPlayersToStart = 10;				//some reasonable number that will be changed by a lower value
+	int winner = 0;
 	QVector<int>  allPlayerNumbers;
 	QVector<int>  playersToUpdate;					//array of players that need to updated at a time
 
@@ -78,6 +82,7 @@ private:
 	bool isFlopFinished = false;
 	bool isTurnFinished = false;
 	bool isRiverFinished = false;
+	bool isWinner = false;
 
 	bool handDealt = false;
 	bool flopDealt = false;

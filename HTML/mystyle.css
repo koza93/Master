@@ -184,6 +184,16 @@ div {
     margin-left: 2vw;
     top:0;
 }
-
+.console{
+   
+    margin-left:5vw;
+    top: 5vh;
+    width:20vw;
+    height:5vh;
+    position: absolute;
+    visibility:hidden;/*visible by default*/
+    border: dashed black 2px;
+    
+}
 
 

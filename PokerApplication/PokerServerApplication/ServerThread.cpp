@@ -186,11 +186,13 @@ void ServerThread::updateBetMade(bool c) {
 	qDebug() << "Thread:" << this->socketDescriptor << "BetMade ";
 }
 
-void ServerThread::updateRaiseMade(int playerNo, int amount) {
+void ServerThread::updateRaiseMade(int playerNo, int amount, int tC, int tP) {
 	previousPlayer = playerNo;
 	betRaised = true;
 	allBetAmount = amount;
-	qDebug() << "Thread:" << this->socketDescriptor << "RaiseMade By: " <<playerNo << "Amount: " << amount;
+	totalChips = tC;
+	totalPot = tP;
+	qDebug() << "Thread:" << this->socketDescriptor << "RaiseMade By: " <<playerNo << "Amount: " << amount << "TotalChips: " << tC;
 	
 }
 
@@ -201,11 +203,13 @@ void ServerThread::updateCheckMade(int playerNo) {
 
 }
 
-void ServerThread::updateCallMade(int playerNo , int amount) {
+void ServerThread::updateCallMade(int playerNo , int amount, int tC, int tP) {
 	previousPlayer = playerNo;
 	betCalled = true;
 	allBetAmount = amount;
-	qDebug() << "Thread:" << this->socketDescriptor << "CallMade By: " << playerNo;
+	totalChips = tC;
+	totalPot = tP;
+	qDebug() << "Thread:" << this->socketDescriptor  << "CallMade By: " << playerNo << "TotalChips: " << tC;
 
 }
 
@@ -238,6 +242,13 @@ void ServerThread::updateCardsOnTable(Card** cards)
 		cardsOnTable[i] = cards[i];
 		qDebug() << "I have cards: " << cardsOnTable[i]->getFigure() << cardsOnTable[i]->getSuit();
 	}
+}
+
+void ServerThread::updateOnWin(int win)
+{
+	winner = win;
+	qDebug() << "winner is: " << winner;
+	isWinner = true;
 }
 
 void ServerThread::delay(int millisecondsToWait)
@@ -298,6 +309,13 @@ void ServerThread::checkInputsFromServer()
 	//TODO - At some stage put all those if statements into a function
 	delay(500);
 
+	if (isWinner == true) {
+		isWinner = false;
+
+		qDebug() << "Win:" << QString::number(winner);
+		sendMessage("Win:" + QString::number(winner));
+		delay(8000);
+	}
 	if (allPlayersUpdated == true) {
 		QString msg = "AllPlayers";
 		for (int i = 0; i < allPlayerNumbers.size(); ++i) {
@@ -305,35 +323,11 @@ void ServerThread::checkInputsFromServer()
 		}
 		sendMessage(msg);
 		allPlayersUpdated = false;
-		delay(1000);
-		sendMessage("Raise:" + QString::number(currentBB) + ":" + QString::number(bigBlind));
-		delay(1000);
-		sendMessage("Raise:" + QString::number(currentSB) + ":" + QString::number(smallBlind));
-		delay(1000);
-	}
-	if (betFolded == true)
-	{
-		sendMessage("Fold:" + QString::number(previousPlayer));
-		betFolded = false;
-		delay(200);
-	}
-	if (betRaised == true)
-	{
-		sendMessage("Raise:" + QString::number(previousPlayer) + ":" + QString::number(allBetAmount));///
-		betRaised = false;
-		delay(200);
-	}
-	if (betCalled == true)
-	{
-		sendMessage("Call:" + QString::number(previousPlayer) + ":" + QString::number(allBetAmount));
-		betCalled = false;
-		delay(200);
-	}
-	if (betChecked == true)
-	{
-		sendMessage("Check:" + QString::number(previousPlayer));
-		betChecked = false;
-		delay(200);
+		delay(500);
+		sendMessage("Raise:" + QString::number(currentBB) + ":" + QString::number(bigBlind) +":450" + ":75");		//TODO get an actual number for totalchips from server
+		delay(500);
+		sendMessage("Raise:" + QString::number(currentSB) + ":" + QString::number(smallBlind) + ":475"+ ":75");	//up
+		delay(500);
 	}
 	if (betMade == true) {
 		betMade = false;
@@ -352,6 +346,32 @@ void ServerThread::checkInputsFromServer()
 		}
 		delay(200);
 	}
+
+	if (betFolded == true)
+	{
+		sendMessage("Fold:" + QString::number(previousPlayer));
+		betFolded = false;
+		delay(200);
+	}
+	if (betRaised == true)
+	{
+		sendMessage("Raise:" + QString::number(previousPlayer) + ":" + QString::number(allBetAmount)+ ":" + QString::number(totalChips)+ ":" + QString::number(totalPot));///
+		betRaised = false;
+		delay(200);
+	}
+	if (betCalled == true)
+	{
+		sendMessage("Raise:" + QString::number(previousPlayer) + ":" + QString::number(allBetAmount) + ":" + QString::number(totalChips) + ":" + QString::number(totalPot));///
+		betCalled = false;
+		delay(200);
+	}
+	if (betChecked == true)
+	{
+		sendMessage("Check:" + QString::number(previousPlayer));
+		betChecked = false;
+		delay(200);
+	}
+	
 	if (handDealt == true) {
 		handDealt = false;
 		QString msg;
@@ -373,7 +393,7 @@ void ServerThread::checkInputsFromServer()
 		delay(200);
 
 		for (int i = 0; i < playersToUpdate.size(); ++i) {
-			sendMessage("Update:" + QString::number(playersToUpdate.at(i)) + ":0");
+			sendMessage("Update:" + QString::number(playersToUpdate.at(i)) + ":0:NA:NA");
 			delay(200);
 		}
 		
@@ -388,7 +408,7 @@ void ServerThread::checkInputsFromServer()
 		delay(200);
 
 		for (int i = 0; i < playersToUpdate.size(); ++i) {
-			sendMessage("Update:" + QString::number(playersToUpdate.at(i)) + ":0");
+			sendMessage("Update:" + QString::number(playersToUpdate.at(i)) + ":0:NA:NA" );			// will have a separate label for totalchips in javascript so a dummy variable will do (not gonna update tc in js)
 			delay(200);
 		}
 	}
@@ -401,7 +421,7 @@ void ServerThread::checkInputsFromServer()
 		delay(200);
 
 		for (int i = 0; i < playersToUpdate.size(); ++i) {
-			sendMessage("Update:" + QString::number(playersToUpdate.at(i)) + ":0");
+			sendMessage("Update:" + QString::number(playersToUpdate.at(i)) + ":0:NA:NA");
 			delay(200);
 		}
 	}
@@ -421,18 +441,3 @@ void ServerThread::checkInputsFromServer()
 		}*/
 	}
 }
-/*
-void ServerThread::aFunction() {
-	//while game is on
-	while (!isGameFinished) {
-		//while playing flop
-		while (!isFlopFinished) {
-			if (betMade == true) {
-				betMade = false;
-				sendMessage("ChangeTurn:" + QString::number(currentPlayer));
-			}
-		}
-
-	}
-}
-*/

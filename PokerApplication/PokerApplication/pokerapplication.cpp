@@ -187,6 +187,12 @@ void PokerApplication::readyRead()
 			notifyOnAssignId(true);
 			
 		}
+		if (dataList[0] == "Win") {
+			qDebug() << "Win:" + dataList[1].toInt();
+			//need to fill in the table for players in js before showing the cards
+			notifyOnWin(dataList[1].toInt());
+
+		}
 		
 	}	
 	if (dataList.length() > 2) {
@@ -235,16 +241,34 @@ void PokerApplication::readyRead()
 			notifyOnFlopDealt(true); //make a notify function to notify js of cards
 		}
 
-		if (dataList[0] == "Raise" || dataList[0] == "Call" || dataList[0] == "Update") {
+		if (dataList[0] == "Raise" || dataList[0] == "Call" ) {
 			int currentPlayer = 0;			//this is the player that has just made a bet not an actuall current player making decision
 			int theBet = 0;					//total no of chips this player has placed on the table
+			int totalChips = 0;				//total no of chips player has in pocket
+			int totalPot = 0;
 			qDebug() << "Bet on table" + dataList[1] + ":" + dataList[2];
 			
 			currentPlayer = dataList[1].toInt();
 			theBet = dataList[2].toInt();
-
-			notifyOnBet(currentPlayer,theBet); //make a notify function to notify js of cards
+			totalChips = dataList[3].toInt();
+			totalPot = dataList[4].toInt();
+			notifyOnBet(currentPlayer,theBet, totalChips, totalPot); //make a notify function to notify js of cards
 		}
+		if (dataList[0] == "Update") {
+			int currentPlayer = 0;			//this is the player that has just made a bet not an actuall current player making decision
+			int theBet = 0;					//total no of chips this player has placed on the table
+			int totalChips = 0;				//total no of chips player has in pocket
+			int totalPot = 0;
+			qDebug() << "Bet on table" + dataList[1] + ":" + dataList[2];
+
+			currentPlayer = dataList[1].toInt();
+			theBet = dataList[2].toInt();
+			totalChips = dataList[3].toInt();
+			totalPot = dataList[4].toInt();
+			notifyOnUpdate(currentPlayer, theBet, totalChips, totalPot); //make a notify function to notify js of cards
+		}
+
+
 
 	}
 	

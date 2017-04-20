@@ -28,11 +28,12 @@ $(document).ready(function () {
         });
 
 
-        pokerOperations.notifyOnBet.connect(function (playerID, chips) {
+        pokerOperations.notifyOnBet.connect(function (playerID, chips, totalChips,totalPot) {
             
+            document.getElementById('totalPot').innerHTML = '<label>'+ "TotalPot: " +totalPot + '</label>';
             var currentNo;
             if (playerID == myPlayerNumber) {
-                document.getElementById('seatTaken6').innerHTML = '<img src="Seat3.png" style="width:10.3vw;height:14vh;"><label>' + myPlayerNumber + "bet" + chips + '</label>';
+                document.getElementById('seatTaken6').innerHTML = '<img src="Seat3.png" style="width:10.3vw;height:14vh;"><label>' + myPlayerNumber + "bet" + chips + "total" + totalChips + '</label>';
             }
             else {
                 for (var i = 0; i < 5; i++) {
@@ -41,7 +42,38 @@ $(document).ready(function () {
                         //alert(currentNo);
                         for (var j = 0; j < 5; j++) {
                             if (seatArray[j] == i) {
-                                document.getElementById('seatTaken' + (j + 1)).innerHTML = '<img src="Seat2.png" style="width:10.3vw;height:14vh;"><label>' + arrayOfPlayers[i]+ "bet"+chips + '</label>';
+                                document.getElementById('seatTaken' + (j + 1)).innerHTML = '<img src="Seat2.png" style="width:10.3vw;height:14vh;"><label>' + arrayOfPlayers[i] + "bet" + chips + "total" + totalChips + '</label>';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        pokerOperations.notifyOnWin.connect(function (winnerID) {
+
+            $(".theBetting").css("visibility", "hidden");
+            if(winnerID == myPlayerNumber)
+                document.getElementById('totalPot').innerHTML = '<label>' + "I win :D :D" + '</label>';
+            else
+                document.getElementById('totalPot').innerHTML = '<label>' + "Winner is:" + winnerID + '</label>';
+        
+        });
+
+        pokerOperations.notifyOnUpdate.connect(function (playerID, chips, totalChips, totalPot) {
+
+            var currentNo;
+            if (playerID == myPlayerNumber) {
+                document.getElementById('seatTaken6').innerHTML = '<img src="Seat3.png" style="width:10.3vw;height:14vh;"><label>' + myPlayerNumber + "bet" + chips + "total" + totalChips + '</label>';
+            }
+            else {
+                for (var i = 0; i < 5; i++) {
+                    if (playerID === arrayOfPlayers[i]) {
+                        currentNo = i;
+                        //alert(currentNo);
+                        for (var j = 0; j < 5; j++) {
+                            if (seatArray[j] == i) {
+                                document.getElementById('seatTaken' + (j + 1)).innerHTML = '<img src="Seat2.png" style="width:10.3vw;height:14vh;"><label>' + arrayOfPlayers[i] + "bet" + chips + "total" + totalChips + '</label>';
                             }
                         }
                     }
@@ -247,6 +279,7 @@ $(document).ready(function () {
                 
                 $(".joinTable").css("visibility", "hidden");
                 $("#userNameLabel").css("visibility", "hidden");
+                $(".console").css("visibility", "visible");
                 $(".theTable").css("visibility", "visible");
                 alert("joined Table waiting for players");
 

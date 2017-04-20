@@ -23,7 +23,7 @@ public:
 	void dealCards();										//deals cards to the table and the players
 	void checkForWinner();									//checks which player has best hand
 	void initBlinds();										//initialisesBlinds
-	QString compareCards();										//compare cards between players
+	QString compareCards();									//compare cards between players
 	QString createCardTable(Card**);						//creates a table which is going to determine the best hand of the player
 	int currentPlayer = 0;									//thread id  of current player
 	int testI = 0;											//get rid of later gonna use it to test algoritm and input manual cards;
@@ -32,14 +32,16 @@ public:
 signals:
 	void updateNoOfPlayersToStartGame(int num);				//notify socket threads how many players to start game;
 	void updateBetMade(bool);								//notify socket threads bet was made (int canCheck) 0 for call, 1 for check
-	void updateRaiseMade(int, int);							//notify socket threads a raise was made (int who_made_the_raise,int amount_raised)
-	void updateCallMade(int num, int);							//notify socket threads a call was made (int who_made_the_call)
+	void updateRaiseMade(int, int, int, int);				//notify socket threads a raise was made (int who_made_the_raise,int amount_raised)
+	void updateCallMade(int num, int, int, int);			//notify socket threads a call was made (int who_made_the_call)
 	void updateCheckMade(int num);							//notify socket threads a check was made (int who_made_the_call)
 	void updateFoldMade(int num);							//notify socket threads of current player fold
 	void updateCurrentPlayer(int num);						//notify socket threads of current player
-	void updateAllPlayers(QVector<int>, int, int);					// notify socket of all thread numbers
+	void updateAllPlayers(QVector<int>, int, int);			// notify socket of all thread numbers
 	void updateNoClients(int num);							//notify socket threads of number of clients
-	void changeGameStage(int num, QVector<int>);		//notify socket that game stage changed ie pre flop to flop. 0 for pre flop, 1 for flop ....to change from pre flop to flop send 1
+	void updateOnWin(int);									//notify socket of a winner
+	void updateOnDraw(int numofdrawers, QVector<int> thedrawesIds, QString whatitWonWith);
+	void changeGameStage(int num, QVector<int>);			//notify socket that game stage changed ie pre flop to flop. 0 for pre flop, 1 for flop ....to change from pre flop to flop send 1
 
 	void updateHand(Card*, Card*, int);						//notify socket threads and update them with their current hand (car1,card2,socketDescriptor)
 	void updateCardsOnTable(Card**);						//notify socket threads and update them with current cards on table
@@ -57,6 +59,8 @@ public slots :
 private:
 	int numberOfClients = 0;	
 	int dealerCounter = 0;									//used to determine who is the dealer
+	int smallBlindCounter = 0;
+	int bigBlindCounter = 0;
 	int globalI = 0;										//used to increment through Currentplayer list
 	int globalGameStage = 0;								//determines stage of game {0 pre flop, 1 flop ....} to change from pre flop to flop send 1
 	int previousGlobalGameStage = 0;						//temp globalgamestage

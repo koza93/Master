@@ -22,7 +22,10 @@ signals :
 	void notifyOnAllPlayersConnected(int,int);							//notify js
 	void notifyOnAssignId(bool);										//notify js
 
-	void notifyOnBet(int, int);											//notify js
+	void notifyOnUpdate(int, int, int, int);							//notify js
+	void notifyOnBet(int, int, int, int);								//notify js
+	void notifyOnWin(int);												//notify js
+
 
 	void error(QTcpSocket::SocketError error);
 public slots :
@@ -64,7 +67,7 @@ private:
 	bool isMyTurn = false;												//will be received from server 
 	int numberOfPlayers = 0;											//will be recieved from server
 	int myTotalChips = 0;
-	int totalPot = 0;
+	//int totalPot = 0;
 	int currentBet = 0;
 
 	QString myCards[2];												//String values for cards on hand
