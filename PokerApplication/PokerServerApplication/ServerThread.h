@@ -43,7 +43,7 @@ signals:
 	void updateNumberClients(int num);
 	void updateCurrentPlayer(int num);
 	void updateOnWin(int);
-	void updateAllPlayers(QVector<int>, int bb, int sb);		//vector containing thread numbers of all players , thread number of big blind, thread number of small blind
+	void updateAllPlayers(QVector<int>, QVector<int>, int bb, int sb);		//vector containing thread numbers of all players , thread number of big blind, thread number of small blind
 	void updateNoOfPlayersToStartGame(int num);		//updates number of players needed to start a game
 	void changeGameStage(int gameStage, QVector<int>);
 
@@ -69,6 +69,7 @@ private:
 	int numberOfPlayersToStart = 10;				//some reasonable number that will be changed by a lower value
 	int winner = 0;
 	QVector<int>  allPlayerNumbers;
+	QVector<int>  allPlayersTC;						//array of totalchips correcponding to allPlayerNumbers
 	QVector<int>  playersToUpdate;					//array of players that need to updated at a time
 
 	bool betMade = false;

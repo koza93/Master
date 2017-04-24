@@ -43,7 +43,7 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	connect(this, SIGNAL(updateNoOfPlayersToStartGame(int)), thread, SLOT(updateNoOfPlayersToStartGame(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCurrentPlayer(int)), thread, SLOT(updateCurrentPlayer(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateOnWin(int)), thread, SLOT(updateOnWin(int)), Qt::QueuedConnection);
-	connect(this, SIGNAL(updateAllPlayers(QVector<int>, int, int)), thread, SLOT(updateAllPlayers(QVector<int>, int, int)), Qt::DirectConnection);
+	connect(this, SIGNAL(updateAllPlayers(QVector<int>, QVector<int>, int, int)), thread, SLOT(updateAllPlayers(QVector<int>, QVector<int>, int, int)), Qt::DirectConnection);
 	connect(this, SIGNAL(changeGameStage(int, QVector<int>)), thread, SLOT(changeGameStage(int, QVector<int>)), Qt::DirectConnection);
 	connect(this, SIGNAL(updateBetMade(bool)), thread, SLOT(updateBetMade(bool)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateFoldMade(int)), thread, SLOT(updateFoldMade(int)), Qt::QueuedConnection);
@@ -284,8 +284,9 @@ void PokerServer::detectCallWasMade(int socketDescriptor)
 		{
 			qDebug() << "The current biggest bet at call is: " << currentBiggestBet;
 			totalPot += (currentBiggestBet - listOfPlayers[i]->getCurrentBet());
+			int previousBet = listOfPlayers[i]->getCurrentBet();
 			listOfPlayers[i]->setCurrentBet(currentBiggestBet);
-			listOfPlayers[i]->setTotalChips(listOfPlayers[i]->getTotalChips() - (currentBiggestBet));
+			listOfPlayers[i]->setTotalChips(listOfPlayers[i]->getTotalChips() - (currentBiggestBet - previousBet));
 			totalChips = listOfPlayers[i]->getTotalChips();
 
 		}
@@ -1056,8 +1057,10 @@ void PokerServer::initBlinds()
 			//TODO will need to change the big blind to next person every time
 			listOfPlayers[smallBlindCounter]->setCurrentBet(smallBlind);
 			listOfPlayers[smallBlindCounter]->setAsSmallBlind(true);
+			listOfPlayers[smallBlindCounter]->setTotalChips(listOfPlayers[smallBlindCounter]->getTotalChips() - smallBlind);
 			listOfPlayers[bigBlindCounter]->setCurrentBet(bigBlind);
 			listOfPlayers[bigBlindCounter]->setAsBigBlind(true);
+			listOfPlayers[bigBlindCounter]->setTotalChips(listOfPlayers[bigBlindCounter]->getTotalChips() - bigBlind);
 			currentBiggestBet = bigBlind;
 			currentPlayer = listOfPlayers[dealerCounter]->getSocketDescriptor();
 			globalI = dealerCounter;										//globalI is used to increment and identifier of the player in the list of players
@@ -1066,8 +1069,10 @@ void PokerServer::initBlinds()
 		{
 			listOfPlayers[smallBlindCounter]->setCurrentBet(smallBlind);
 			listOfPlayers[smallBlindCounter]->setAsSmallBlind(true);
+			listOfPlayers[smallBlindCounter]->setTotalChips(listOfPlayers[smallBlindCounter]->getTotalChips() - smallBlind);
 			listOfPlayers[bigBlindCounter]->setCurrentBet(bigBlind);
 			listOfPlayers[bigBlindCounter]->setAsBigBlind(true);
+			listOfPlayers[bigBlindCounter]->setTotalChips(listOfPlayers[bigBlindCounter]->getTotalChips() - bigBlind);
 			currentBiggestBet = bigBlind;
 			currentPlayer = listOfPlayers[dealerCounter]->getSocketDescriptor();
 			globalI = dealerCounter;  //TODO
@@ -1076,8 +1081,10 @@ void PokerServer::initBlinds()
 		{
 			listOfPlayers[smallBlindCounter]->setCurrentBet(smallBlind);
 			listOfPlayers[smallBlindCounter]->setAsSmallBlind(true);
+			listOfPlayers[smallBlindCounter]->setTotalChips(listOfPlayers[smallBlindCounter]->getTotalChips() - smallBlind);
 			listOfPlayers[bigBlindCounter]->setCurrentBet(bigBlind);
 			listOfPlayers[bigBlindCounter]->setAsBigBlind(true);
+			listOfPlayers[bigBlindCounter]->setTotalChips(listOfPlayers[bigBlindCounter]->getTotalChips() - bigBlind);
 			currentBiggestBet = bigBlind;
 
 			if ((bigBlindCounter + 1) != numberOfClients)
@@ -1095,6 +1102,11 @@ void PokerServer::initBlinds()
 		totalPot += bigBlind;
 		totalPot += smallBlind;
 		qDebug() << "totalPot = " << totalPot;
+
+		for (int i = 0; i < allPlayersVector.size(); i++) {
+			allPlayersChipsVector.append(listOfPlayers[i]->getTotalChips());
+		}
+		
 
 	}
 
@@ -1115,9 +1127,9 @@ void PokerServer::initBlinds()
 	emit updateNoOfPlayersToStartGame(numberOfPlayersToStartGame);
 	emit updateNoClients(numberOfClients);
 	emit updateCurrentPlayer(currentPlayer);
-	emit updateAllPlayers(allPlayersVector, bbThreadId, sbThreadId);
+	emit updateAllPlayers(allPlayersVector, allPlayersChipsVector,bbThreadId, sbThreadId);
 	emit updateBetMade(false);	//will not allow the first player to play check
-
+	allPlayersChipsVector.clear();
 	//for now this piece of code creates a deck, i might fit it elsewhere 
 	if (numberOfClients == numberOfPlayersToStartGame) {
 

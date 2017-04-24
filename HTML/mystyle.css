@@ -150,6 +150,152 @@ div {
     visibility:hidden;/*hidden by default*/
 }
 
+
+.console{
+   
+    margin-left:5vw;
+    top: 5vh;
+    width:90vw;
+    height:90vh;
+    position: absolute;
+    visibility:hidden;/*visible by default*/ 
+}
+
+#playerName1{
+    position: absolute;
+    width:5vw;
+    top: 38vh;
+    left: 5.4vw;
+}
+
+#playerName2{
+    position: absolute;
+    width:5vw;
+    top: 13.5vh;
+    left: 15.5vw;
+}
+
+
+#playerName3{
+    position: absolute;
+    width:5vw;
+    top: 6vh;
+    left: 40.5vw;
+}
+
+#playerName4{
+    position: absolute;
+    width:5vw;
+    top: 13.5vh;
+    left: 65.5vw;
+}
+
+#playerName5{
+    position: absolute;
+    width:5vw;
+    top: 38vh;
+    left: 75.5vw;
+}
+
+#playerName6{
+    position: absolute;
+    width:5vw;
+    top: 76vh;
+    left: 42.5vw;
+}
+
+#totalChips1{
+    position: absolute;
+    width:10vw;
+    top: 26vh;
+    left: 2.4vw;
+}
+
+#totalChips2{
+    position: absolute;
+    width:10vw;
+    top: 1.5vh;
+    left: 12.5vw;
+}
+
+
+#totalChips3{
+    position: absolute;
+    width:10vw;
+    top: -6vh;
+    left: 37.5vw;
+}
+
+#totalChips4{
+    position: absolute;
+    width:10vw;
+    top: 1.5vh;
+    left: 62.5vw;
+}
+
+#totalChips5{
+    position: absolute;
+    width:10vw;
+    top: 26vh;
+    left: 72.5vw;
+}
+
+#totalChips6{
+    position: absolute;
+    width:10vw;
+    top: 64vh;
+    left: 39.5vw;
+}
+
+#bets1{
+    position: absolute;
+    width:10vw;
+    top: 44vh;
+    left: 2.4vw;
+}
+
+#bets2{
+    position: absolute;
+    width:10vw;
+    top: 19.5vh;
+    left: 12.5vw;
+}
+
+
+#bets3{
+    position: absolute;
+    width:10vw;
+    top: 12vh;
+    left: 37.5vw;
+}
+
+#bets4{
+    position: absolute;
+    width:10vw;
+    top: 19.5vh;
+    left: 62.5vw;
+}
+
+#bets5{
+    position: absolute;
+    width:10vw;
+    top: 44vh;
+    left: 72.5vw;
+}
+
+#bets6{
+    position: absolute;
+    width:10vw;
+    top: 82vh;
+    left: 39.5vw;
+}
+
+#totalPot{
+    position: absolute;
+    width:12vw;
+    top: 50vh;
+    left: 38.5vw;
+}
 .theBetting{
    
     margin-left:60vw;
@@ -157,9 +303,7 @@ div {
     width:30vw;
     height:10vh;
     position: absolute;
-    visibility:hidden;/*hidden by default*/
-    border: dashed black 2px;
-    
+    visibility:hidden;/*hidden by default*/    
 }
 #foldButton{
     margin-left: 2vw;
@@ -184,16 +328,3 @@ div {
     margin-left: 2vw;
     top:0;
 }
-.console{
-   
-    margin-left:5vw;
-    top: 5vh;
-    width:20vw;
-    height:5vh;
-    position: absolute;
-    visibility:hidden;/*visible by default*/
-    border: dashed black 2px;
-    
-}
-
-

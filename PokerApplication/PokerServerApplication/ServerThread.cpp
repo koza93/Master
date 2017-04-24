@@ -172,10 +172,11 @@ void ServerThread::updateCurrentPlayer(int num) {
 	
 }
 
-void ServerThread::updateAllPlayers(QVector<int> v, int bb, int sb) {
+void ServerThread::updateAllPlayers(QVector<int> v, QVector<int> tC, int bb, int sb) {
 	allPlayersUpdated = true;
 	qDebug() << "Updating all player thread numbers";
 	allPlayerNumbers = v;
+	allPlayersTC = tC;
 	currentBB = bb;
 	currentSB = sb;
 }
@@ -324,10 +325,32 @@ void ServerThread::checkInputsFromServer()
 		sendMessage(msg);
 		allPlayersUpdated = false;
 		delay(500);
-		sendMessage("Raise:" + QString::number(currentBB) + ":" + QString::number(bigBlind) +":450" + ":75");		//TODO get an actual number for totalchips from server
-		delay(500);
-		sendMessage("Raise:" + QString::number(currentSB) + ":" + QString::number(smallBlind) + ":475"+ ":75");	//up
-		delay(500);
+		for (int i = 0; i < allPlayerNumbers.size(); ++i) {
+			if (allPlayerNumbers.at(i) == currentBB ) {
+				sendMessage("Raise:" + QString::number(currentBB) + ":" + QString::number(bigBlind) + ":" + QString::number(allPlayersTC.at(i)) + ":75");		//TODO get an actual number for totalchips from server
+				delay(500);
+			}
+		}
+		
+		//delay(500);
+
+		for (int i = 0; i < allPlayerNumbers.size(); ++i) {
+			if (allPlayerNumbers.at(i) == currentSB) {
+				sendMessage("Raise:" + QString::number(currentSB) + ":" + QString::number(smallBlind) + ":"  + QString::number(allPlayersTC.at(i)) + ":75");	//up
+				delay(500);
+			}
+		}
+		
+		//delay(500);
+
+		for (int i = 0; i < allPlayerNumbers.size(); ++i) {
+			if (allPlayerNumbers.at(i) != currentBB && allPlayerNumbers.at(i) != currentSB) {
+				sendMessage("Raise:" + QString::number(allPlayerNumbers.at(i)) + ":" + "0:" + QString::number(allPlayersTC.at(i)) + ":75");
+				delay(500);
+			}		
+		}
+		allPlayersTC.clear();
+		
 	}
 	if (betMade == true) {
 		betMade = false;
