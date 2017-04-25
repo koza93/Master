@@ -59,6 +59,7 @@ public slots :
 
 private:
 	int numberOfClients = 0;	
+	int numberOfClientsInPlay = 0;
 	int dealerCounter = 0;									//used to determine who is the dealer
 	int smallBlindCounter = 0;
 	int bigBlindCounter = 0;
@@ -71,7 +72,7 @@ private:
 	int totalPot = 0;										//totalPot for a game
 	int currentBiggestBet = 0;
 	
-	int numberOfPlayersToStartGame = 3;
+	int numberOfPlayersToStartGame = 4;
 
 	bool bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
 	bool dealerBet = false;										//determines whether the dealer has already bet or not - used after preflop

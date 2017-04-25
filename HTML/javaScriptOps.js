@@ -63,6 +63,15 @@ $(document).ready(function () {
                 document.getElementById('totalPot').innerHTML = '<label>' + "I win :D :D" + '</label>';
             else
                 document.getElementById('totalPot').innerHTML = '<label>' + "Winner is:" + winnerID + '</label>';
+            for (var i = 6; i <= 7; i++) {
+                (function (index) {
+                    setTimeout(function () {
+                        var cards = "card" + index;
+                        document.getElementById(cards).innerHTML = '<img src="Cards.png" style="width:7.8vw;height:15vh;">';
+                        $(cards).css("visibility", "visible");
+                    }, i * 10);
+                })(i);
+            }
         
         });
 

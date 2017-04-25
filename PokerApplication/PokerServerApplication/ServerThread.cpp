@@ -230,8 +230,9 @@ void ServerThread::updateMyCurrentHand(Card* c1, Card* c2, int sc)
 		myCurrentCards[1] = c2;
 
 		qDebug() << "I have cards: " << myCurrentCards[0]->getFigure() << myCurrentCards[0]->getSuit() << "and " << myCurrentCards[1]->getFigure() << myCurrentCards[1]->getSuit();
+		handDealt = true;
 	}
-	handDealt = true;
+	
 }
 
 void ServerThread::updateCardsOnTable(Card** cards)

@@ -24,6 +24,7 @@ class Player : public QObject
 		void setAsFolded(bool);					//set the attribute hasFolded to true or false 
 		void setAsBet(bool);					//set the attribute hasBet to true or false 
 		void setBestCards(QString);				//sets the best cards of the player for current hand
+		void setInGame(bool);
 
 		int getSocketDescriptor();
 		int getTotalChips();
@@ -34,6 +35,7 @@ class Player : public QObject
 		bool isSmallBlind();
 		bool isFolded();
 		bool isBet();
+		bool isInGame();
 
 		void setMyCurrentHand(Card*, int);		//(theCard, the position in array) //position must be less than 2
 		Card* getMyCards(int);					//(position in array) //must be less than 2
@@ -53,6 +55,7 @@ class Player : public QObject
 		bool smallBlind = false;
 		bool hasFolded = false;
 		bool hasBet = false;
+		bool inGame = true;
 
 		Card* myCurrentHand[2];
 		QString myBestCards;

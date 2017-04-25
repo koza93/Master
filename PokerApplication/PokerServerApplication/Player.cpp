@@ -61,6 +61,11 @@ void Player::setBestCards(QString s)
 	myBestCards = s;
 }
 
+void Player::setInGame(bool s)
+{
+	inGame = s;
+}
+
 QString Player::getBestCards()
 {
 	return myBestCards;
@@ -84,6 +89,11 @@ int Player::getCurrentBet()
 bool Player::isDealer()
 {
 	return dealer;
+}
+
+bool Player::isInGame()
+{
+	return inGame;
 }
 
 bool Player::isBigBlind()
