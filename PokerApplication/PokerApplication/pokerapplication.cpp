@@ -8,6 +8,9 @@ PokerApplication::PokerApplication()
 
 PokerApplication::~PokerApplication()
 {
+	QSqlQuery query;
+	query.prepare("UPDATE poker_database.users SET isLoggedIn = 0, currentID = " + QString::number(myClientNumber) + " WHERE user = '" + currentUsername + "'");
+	query.exec();
 	socket->close();
 }
 
@@ -45,15 +48,18 @@ Q_INVOKABLE bool PokerApplication::checkUserAndPassword(QString usr, QString psd
 Q_INVOKABLE bool PokerApplication::validateUserAndPassword(QString usr, QString psd)
 {
 	QSqlQuery query;
-	if (query.exec("SELECT * FROM poker_database.users WHERE user = '"+ usr +"' and password = '"+ psd +" '"))
+	if (query.exec("SELECT * FROM poker_database.users WHERE user = '"+ usr +"' and password = '"+ psd +" ' and isLoggedIn = 0"))
 	{
 		while (query.next())
 		{
 			qDebug() << "valid user name and password for user:" +query.value(1).toString();
 			isUserLoggedIn = true;
 			currentUsername = usr;
+			query.prepare("UPDATE poker_database.users SET isLoggedIn = 1 WHERE user = '" + currentUsername + "'");
+			query.exec();
 			return true;
 		}
+		
 		qDebug() << "invalid user name and password";
 		return false;
 		
@@ -117,6 +123,10 @@ void PokerApplication::readyRead()
 		if (dataList[0] == "Thread")
 		{
 			myClientNumber = dataList[1].toInt();
+			//updateDb with current thread number
+			QSqlQuery query;
+			query.prepare("UPDATE poker_database.users SET currentID = "+QString::number(myClientNumber)+", totalGames = totalGames+1, totalChips = totalChips - 500  WHERE user = '" +currentUsername+"'");
+			query.exec();
 			qDebug() <<myClientNumber;
 		}	
 		if (dataList[0] == "ChangeTurn")
@@ -350,4 +360,8 @@ void PokerApplication::delay(int millisecondsToWait)
 	{
 		QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 	}
+}
+void PokerApplication::closing()
+{
+	this->deleteLater();
 }

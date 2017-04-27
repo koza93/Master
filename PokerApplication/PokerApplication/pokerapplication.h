@@ -31,6 +31,7 @@ signals :
 public slots :
 	void readyRead();
 	void disconnected();
+	void closing();
 
 
 public:

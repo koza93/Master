@@ -10,6 +10,7 @@
 #include <QFuture>
 #include <QTConcurrent/QtConcurrentRun>
 #include <QList>
+#include <QtSql>
 class PokerServer : public QTcpServer
 {
 	Q_OBJECT
@@ -23,6 +24,7 @@ public:
 	void dealCards();										//deals cards to the table and the players
 	void checkForWinner();									//checks which player has best hand
 	void initBlinds();										//initialisesBlinds
+	bool AcquireConnectionDb();								//connect to db
 	QString compareCards();									//compare cards between players
 	QString createCardTable(Card**);						//creates a table which is going to determine the best hand of the player
 	int currentPlayer = 0;									//thread id  of current player
@@ -84,7 +86,7 @@ private:
 	Deck playingDeck;										//playing deck 
 	Card* cardsOnTable[5];									//the card that gonna be dealt to table
 
-	
+	QSqlDatabase db;
 
 protected:
 	void incomingConnection(qintptr  socketDescriptor);

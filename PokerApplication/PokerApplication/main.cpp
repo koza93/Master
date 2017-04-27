@@ -33,6 +33,6 @@ int main(int argc, char *argv[])
 	view->show();
 	qDebug() << "loloo";
 	//app.show();
-	
+	QObject::connect(&a, SIGNAL(aboutToQuit()), &pokerOperations, SLOT(closing()));
 	return a.exec();
 }

@@ -7,7 +7,7 @@
 
 PokerServer::PokerServer(QObject * parent) : QTcpServer(parent)
 {
-
+	
 
 }
 
@@ -22,7 +22,8 @@ void PokerServer::StartServer()
 	{
 		qDebug() << "Server started, waiting for connection...";
 		PokerServer s;
-
+		if (AcquireConnectionDb() == true)
+			qDebug() << "connected to db";
 	}
 
 	/*
@@ -214,7 +215,7 @@ void PokerServer::incrementCurrentPlayer()
 			//		The code that is going to reset the hand and start the next one
 			//if no one has all the chips
 			globalGameStage = 0;												//resetGlobalGameStage
-			totalPot = 0; //need to make sure the total pot is added to winner beforehand
+			//totalPot = 0; //need to make sure the total pot is added to winner beforehand
 			//reset player attributes
 			for (int i = 0; i < listOfPlayers.length(); i++) {
 				listOfPlayers[i]->setCurrentBet(0);
@@ -304,6 +305,15 @@ void PokerServer::incrementCurrentPlayer()
 						emit updateOnGameEnd(listOfPlayers[i]->getSocketDescriptor());
 
 						//update the db
+						QSqlQuery query;
+						QString str = "UPDATE poker_database.users SET totalWins = totalWins+1, totalChips = totalChips + " + QString::number(totalPot)
+							+ "   WHERE currentID = " + QString::number(listOfPlayers[i]->getSocketDescriptor());
+						qDebug() << str;
+						query.prepare(str);
+						query.exec();
+						query.prepare("UPDATE poker_database.users SET currentID = 0 WHERE ID < 1000" );
+						query.exec();
+
 
 						//reset all server variables
 						numberOfClients = 0;
@@ -1278,4 +1288,18 @@ void PokerServer::initBlinds()
 		playingDeck.shuffleDeck();
 		dealCards();
 	}
+}
+
+bool PokerServer::AcquireConnectionDb()
+{
+	db = QSqlDatabase::addDatabase("QMYSQL");
+	db.setHostName("127.0.0.1");
+	db.setPort(3306);
+	//db.setDatabaseName("DRIVER = { Microsoft Access Driver(*.mdb) }; FIL = { MS Access }; DBQ = myaccessfile.mdb");
+	db.setUserName("root");
+	db.setPassword("root");
+	bool ok = db.open();
+	if (ok == true)
+		return true;
+	return false;
 }
