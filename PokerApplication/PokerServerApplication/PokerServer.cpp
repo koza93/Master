@@ -50,6 +50,7 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	connect(this, SIGNAL(updateRaiseMade(int,int, int, int)), thread, SLOT(updateRaiseMade(int, int, int, int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCallMade(int, int, int, int)), thread, SLOT(updateCallMade(int, int, int, int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCheckMade(int)), thread, SLOT(updateCheckMade(int)), Qt::QueuedConnection);
+	connect(this, SIGNAL(updateOnGameEnd(int)), thread, SLOT(updateOnGameEnd(int)), Qt::QueuedConnection);
 	connect(thread, SIGNAL(notifyOnBet()), this, SLOT(incrementCurrentPlayer()), Qt::QueuedConnection); // signal commes from socketThread noteToSelf: this solves my issue of communicating back from the thread
 	connect(thread, SIGNAL(notifyOnBet()), this, SLOT(detectBetWasMade()), Qt::QueuedConnection);
 	connect(thread, SIGNAL(notifyOnRaise(int,int)), this, SLOT(detectRaiseWasMade(int,int)), Qt::QueuedConnection);
@@ -300,7 +301,35 @@ void PokerServer::incrementCurrentPlayer()
 						qDebug() << "The game is finished - winner: " << listOfPlayers[i]->getSocketDescriptor();
 
 						//here send signal to update the clients with a winner
-						//
+						emit updateOnGameEnd(listOfPlayers[i]->getSocketDescriptor());
+
+						//update the db
+
+						//reset all server variables
+						numberOfClients = 0;
+						numberOfClientsInPlay = 0;
+						dealerCounter = 0;									//used to determine who is the dealer
+						smallBlindCounter = 0;
+						bigBlindCounter = 0;
+						globalI = 0;										//used to increment through Currentplayer list
+						globalGameStage = 0;								//determines stage of game {0 pre flop, 1 flop ....} to change from pre flop to flop send 1
+						previousGlobalGameStage = 0;						//temp globalgamestage
+						bigBlind = 50;
+						smallBlind = 25;
+						totalChips = 0;										//perperson
+						totalPot = 0;										//totalPot for a game
+						currentBiggestBet = 0;
+						numberOfPlayersToStartGame = 2;
+
+						listOfPlayers.clear();								//TODO need to make a signal from current thread that already finished the game that will connect to server and add itself to list 
+						allPlayersVector.clear();							//up
+						
+						bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
+						dealerBet = false;										//determines whether the dealer has already bet or not - used after preflop
+
+						isGameFinished = false;								//game is finished when 1 player has all the chips
+						isHandFinished = false;								//hand is finished when game stage river is finished
+
 					}
 				}
 			}
@@ -374,11 +403,12 @@ void PokerServer::detectCheckWasMade(int socketDescriptor)
 
 void PokerServer::detectBetWasMade()
 {
-
+	
 	if (listOfPlayers[globalI]->getCurrentBet() == currentBiggestBet)
 		emit updateBetMade(true); //(int CanCheck)  send 1 if can check, send 0 if not
 	else
 		emit updateBetMade(false);
+	
 }
 
 void PokerServer::dealCards()
@@ -434,7 +464,10 @@ void PokerServer::checkForWinner()
 	if (winnerParams[0] == "Draw")
 	{
 		for (int i = 0; i < winnerParams[1].toInt(); i++) {
-			qDebug() << "Draw - Player no:" << listOfPlayers[winnerParams[i + 2].toInt()]->getSocketDescriptor();
+			//qDebug() << "Draw - Player no:" << listOfPlayers[winnerParams[i + 2].toInt()]->getSocketDescriptor();
+			if (listOfPlayers[winnerParams[i + 2].toInt()]->getTotalChips() <= 0) {		
+					numberOfClientsInPlay++;
+			}
 			listOfPlayers[winnerParams[i + 2].toInt()]->setTotalChips(listOfPlayers[winnerParams[i + 2].toInt()]->getTotalChips() + (totalPot / winnerParams[1].toInt()));
 			
 		}

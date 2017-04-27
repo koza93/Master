@@ -328,3 +328,14 @@ div {
     margin-left: 2vw;
     top:0;
 }
+
+.winScreen{
+   
+    margin-left:20vw;
+    top: 20vh;
+    width:20vw;
+    height:20vh;
+    position: absolute;
+    visibility:hidden;/*hidden by default*/    
+}
+

@@ -43,6 +43,7 @@ signals:
 	void updateOnWin(int);									//notify socket of a winner
 	void updateOnDraw(int numofdrawers, QVector<int> thedrawesIds, QString whatitWonWith);
 	void changeGameStage(int num, QVector<int>);			//notify socket that game stage changed ie pre flop to flop. 0 for pre flop, 1 for flop ....to change from pre flop to flop send 1
+	void updateOnGameEnd(int winner);
 
 	void updateHand(Card*, Card*, int);						//notify socket threads and update them with their current hand (car1,card2,socketDescriptor)
 	void updateCardsOnTable(Card**);						//notify socket threads and update them with current cards on table
@@ -72,7 +73,7 @@ private:
 	int totalPot = 0;										//totalPot for a game
 	int currentBiggestBet = 0;
 	
-	int numberOfPlayersToStartGame = 4;
+	int numberOfPlayersToStartGame = 2;
 
 	bool bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
 	bool dealerBet = false;										//determines whether the dealer has already bet or not - used after preflop

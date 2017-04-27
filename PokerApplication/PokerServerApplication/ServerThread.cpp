@@ -67,6 +67,10 @@ void ServerThread::run()
 		}
 		//isGameFinished = true;
 	}
+
+	//if game finished notify the clients
+	sendMessage("EndGame:" + QString::number(winner));			//winner ID
+	delay(100);
 	qDebug() << "I have got out of while isGameFinished loop";
 	exec();
 }
@@ -182,9 +186,11 @@ void ServerThread::updateAllPlayers(QVector<int> v, QVector<int> tC, int bb, int
 }
 
 void ServerThread::updateBetMade(bool c) {
-	canCheck = c;
-	betMade = true;
-	qDebug() << "Thread:" << this->socketDescriptor << "BetMade ";
+	if (!isGameFinished) {
+		canCheck = c;
+		betMade = true;
+		qDebug() << "Thread:" << this->socketDescriptor << "BetMade ";
+	}
 }
 
 void ServerThread::updateRaiseMade(int playerNo, int amount, int tC, int tP) {
@@ -198,27 +204,30 @@ void ServerThread::updateRaiseMade(int playerNo, int amount, int tC, int tP) {
 }
 
 void ServerThread::updateCheckMade(int playerNo) {
-	previousPlayer = playerNo;
-	betChecked = true;
-	qDebug() << "Thread:" << this->socketDescriptor << "CheckMade By: " << playerNo;
-
+	if (!isGameFinished) {
+		previousPlayer = playerNo;
+		betChecked = true;
+		qDebug() << "Thread:" << this->socketDescriptor << "CheckMade By: " << playerNo;
+	}
 }
 
 void ServerThread::updateCallMade(int playerNo , int amount, int tC, int tP) {
-	previousPlayer = playerNo;
-	betCalled = true;
-	allBetAmount = amount;
-	totalChips = tC;
-	totalPot = tP;
-	qDebug() << "Thread:" << this->socketDescriptor  << "CallMade By: " << playerNo << "TotalChips: " << tC;
-
+	if (!isGameFinished) {
+		previousPlayer = playerNo;
+		betCalled = true;
+		allBetAmount = amount;
+		totalChips = tC;
+		totalPot = tP;
+		qDebug() << "Thread:" << this->socketDescriptor << "CallMade By: " << playerNo << "TotalChips: " << tC;
+	}
 }
 
 void ServerThread::updateFoldMade(int playerNo) {
-	previousPlayer = playerNo;
-	betFolded = true;
-	qDebug() << "Thread:" << this->socketDescriptor << "CallMade By: " << playerNo;
-
+	if (!isGameFinished) {
+		previousPlayer = playerNo;
+		betFolded = true;
+		qDebug() << "Thread:" << this->socketDescriptor << "CallMade By: " << playerNo;
+	}
 }
 
 void ServerThread::updateMyCurrentHand(Card* c1, Card* c2, int sc)
@@ -248,9 +257,18 @@ void ServerThread::updateCardsOnTable(Card** cards)
 
 void ServerThread::updateOnWin(int win)
 {
+
 	winner = win;
 	qDebug() << "winner is: " << winner;
 	isWinner = true;
+	
+}
+
+void ServerThread::updateOnGameEnd(int win)
+{
+	winner = win;
+	qDebug() << "allwinner is: " << winner;
+	isGameFinished = true;
 }
 
 void ServerThread::delay(int millisecondsToWait)

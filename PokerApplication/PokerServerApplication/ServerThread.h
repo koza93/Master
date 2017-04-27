@@ -45,6 +45,7 @@ signals:
 	void updateOnWin(int);
 	void updateAllPlayers(QVector<int>, QVector<int>, int bb, int sb);		//vector containing thread numbers of all players , thread number of big blind, thread number of small blind
 	void updateNoOfPlayersToStartGame(int num);		//updates number of players needed to start a game
+	void updateOnGameEnd(int);						//(winner)
 	void changeGameStage(int gameStage, QVector<int>);
 
 	void updateMyCurrentHand(Card*, Card*,int);		//updates current hand if cards are dealt for this thread

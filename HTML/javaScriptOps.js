@@ -129,6 +129,7 @@ $(document).ready(function () {
             }
         });
 
+
         //notify of total chips
         pokerOperations.notifyOnAssignId.connect(function (returnValue) {
             if (returnValue === true) {
@@ -272,6 +273,58 @@ $(document).ready(function () {
                 $("#checkButton").css("visibility", "hidden");
             }
         });
+
+        pokerOperations.notifyOnEndGame.connect(function (winner) {
+           $(".theGameplay").css("visibility", "hidden");
+           $(".theTable").css("visibility", "hidden");
+           $(".console").css("visibility", "hidden");
+           $(".theBetting").css("visibility", "hidden");
+           $("#seatTaken6").css("visibility", "hidden");
+           $("#seatTaken5").css("visibility", "hidden");
+           $("#seatTaken4").css("visibility", "hidden");
+           $("#seatTaken3").css("visibility", "hidden");
+           $("#seatTaken2").css("visibility", "hidden");
+           $("#seatTaken1").css("visibility", "hidden");
+           $("#card1").css("visibility", "hidden");
+           $("#card2").css("visibility", "hidden");
+           $("#card3").css("visibility", "hidden");
+           $("#card4").css("visibility", "hidden");
+           $("#card5").css("visibility", "hidden");
+           $("#card6").css("visibility", "hidden");
+           $("#card7").css("visibility", "hidden");
+           $("#callButton").css("visibility", "hidden");
+           for (var i = 1; i <= 7; i++) {
+               (function (index) {
+                   setTimeout(function () {
+                       var cards = "card" + index;
+                       document.getElementById(cards).innerHTML = '<img src="Cards.png" style="width:7.8vw;height:15vh;">';
+                       $(cards).css("visibility", "hidden");
+                       var seats = "seatTaken" + index;
+                       if(index != 7)
+                       $(seats).css("visibility", "hidden");
+                   }, i * 50);
+               })(i);
+           }
+
+           $(".winScreen").css("visibility", "visible");
+
+           if (winner === myPlayerNumber) {
+               document.getElementById('winningMsg').innerHTML = '<label>' +'You have won, congratulations'+ '</label>';
+           }
+           else {
+               document.getElementById('winningMsg').innerHTML = '<label>' + 'Player: ' +winner +'has won, we wish you better luck next time :)'+ '</label>';
+           }
+
+           numOfPlayers=0;
+           myPlayerNumber=0;         //thread number
+           myArrayNumber = 0;           //number in the array
+           handCards=0;
+           flopCards=0;
+           arrayOfPlayers = {};
+           seatArray = {};
+
+           
+        });
     });
 
     $("#loginBtn").click(function () {
@@ -313,6 +366,13 @@ $(document).ready(function () {
         });
 
     });
+
+    $("#exitButton").click(function () {
+        $(".winScreen").css("visibility", "hidden");
+        $(".joinTable").css("visibility", "visible");
+
+    });
+
     $("#checkButton").click(function () {
         pokerOperations.sendCheckButtonClicked();
         $("#checkButton").css("visibility", "hidden");

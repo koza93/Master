@@ -193,6 +193,12 @@ void PokerApplication::readyRead()
 			notifyOnWin(dataList[1].toInt());
 
 		}
+		else if (dataList[0] == "EndGame") {
+			qDebug() << "EndGame:" + dataList[1].toInt();
+			//need to fill in the table for players in js before showing the cards
+			notifyOnEndGame(dataList[1].toInt());
+
+		}
 		
 	}	
 	if (dataList.length() > 2) {
