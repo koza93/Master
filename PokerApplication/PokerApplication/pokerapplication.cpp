@@ -194,6 +194,7 @@ void PokerApplication::readyRead()
 				notifyOnAllPlayersConnected(i, allPlayerNumbers.at(i));
 			}
 			//need to fill in the table for players in js before showing the cards
+			allPlayerNumbers.clear();
 			notifyOnAssignId(true);
 			
 		}
@@ -324,6 +325,7 @@ int *PokerApplication::getAllPlayerNumbers()
 		arrayP[i] = allPlayerNumbers.at(i);
 		qDebug() << "Arr" << i << "here " << arrayP[i];
 	}
+	//allPlayerNumbers.clear();
 	return arrayP;
 }
 
@@ -347,7 +349,7 @@ void PokerApplication::sendFoldButtonClicked() {
 	socket->write(message);
 }
 
-void PokerApplication::callFoldButtonClicked() {
+void PokerApplication::sendCallButtonClicked() {
 	QString msg = "Call:" + QString::number(myClientNumber);
 	QByteArray message = msg.toStdString().c_str();
 	socket->write(message);

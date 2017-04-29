@@ -72,6 +72,7 @@ void ServerThread::run()
 	sendMessage("EndGame:" + QString::number(winner));			//winner ID
 	delay(100);
 	qDebug() << "I have got out of while isGameFinished loop";
+	this->quit();
 	exec();
 }
 

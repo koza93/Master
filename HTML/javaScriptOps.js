@@ -1,5 +1,7 @@
 $(document).ready(function () {
-
+    var myChips = 0;
+    var biggestBet = 0;
+    var myCurrentBet = 0;
     new QWebChannel(qt.webChannelTransport, function (channel) {
        // now you retrieve your object
         window.pokerOperations = channel.objects.pokerOperations;
@@ -12,6 +14,7 @@ $(document).ready(function () {
         var flopCards;
         var arrayOfPlayers = {};
         var seatArray = {};
+        
         pokerOperations.webChannelTest("Created JS Object");
 
         //notifies whenever myturn
@@ -36,7 +39,9 @@ $(document).ready(function () {
                 document.getElementById('seatTaken6').innerHTML = '<img src="Seat3.png" style="width:10.3vw;height:14vh;">';
                 document.getElementById('totalChips6').innerHTML = '<label>Chips: ' + totalChips + '</label>';
                 document.getElementById('playerName6').innerHTML = '<label>' + playerID + '</label>';
-                document.getElementById('bets6').innerHTML = '<label>' + chips + '</label>';
+                document.getElementById('bets6').innerHTML = '<label>Bet:' + chips + '</label>';
+                myChips = totalChips;
+                myCurrentBet = chips;
             }
             else {
                 for (var i = 0; i < 5; i++) {
@@ -48,7 +53,10 @@ $(document).ready(function () {
                                 document.getElementById('seatTaken' + (j + 1)).innerHTML = '<img src="Seat2.png" style="width:10.3vw;height:14vh;">';
                                 document.getElementById('totalChips' + (j + 1)).innerHTML = '<label>Chips: ' + totalChips + '</label>';
                                 document.getElementById('playerName' + (j + 1)).innerHTML = '<label>' + arrayOfPlayers[i] + '</label>';
-                                document.getElementById('bets' + (j + 1)).innerHTML = '<label>' + chips + '</label>';
+                                document.getElementById('bets' + (j + 1)).innerHTML = '<label>Bet: ' + chips + '</label>';
+                                if (chips > biggestBet) {
+                                    biggestBet = chips;
+                                }
                             }
                         }
                     }
@@ -77,12 +85,16 @@ $(document).ready(function () {
 
         pokerOperations.notifyOnUpdate.connect(function (playerID, chips, totalChips, totalPot) {
 
+            
             var currentNo;
             if (playerID == myPlayerNumber) {
                 document.getElementById('seatTaken6').innerHTML = '<img src="Seat3.png" style="width:10.3vw;height:14vh;">';
                 //document.getElementById('totalChips6').innerHTML = '<label>Chips: ' + totalChips + '</label>';
                 document.getElementById('playerName6').innerHTML = '<label>' + playerID + '</label>';
-                document.getElementById('bets6').innerHTML = '<label>' + chips + '</label>';
+                document.getElementById('bets6').innerHTML = '<label>Bet: ' + chips + '</label>';
+                //myChips = totalChips;
+                biggestBet = 0;
+                myCurrentBet = 0;
             }
             else {
                 for (var i = 0; i < 5; i++) {
@@ -94,7 +106,7 @@ $(document).ready(function () {
                                 document.getElementById('seatTaken' + (j + 1)).innerHTML = '<img src="Seat2.png" style="width:10.3vw;height:14vh;">';
                                 //document.getElementById('totalChips' + (j + 1)).innerHTML = '<label>Chips: ' + totalChips + '</label>';
                                 document.getElementById('playerName' + (j + 1)).innerHTML = '<label>' + arrayOfPlayers[i] + '</label>';
-                                document.getElementById('bets' + (j + 1)).innerHTML = '<label>' + chips + '</label>';
+                                document.getElementById('bets' + (j + 1)).innerHTML = '<label>Bet: ' + chips + '</label>';
                             }
                         }
                     }
@@ -157,6 +169,9 @@ $(document).ready(function () {
                 //document.getElementById('seatTaken6').innerHTML = '<img src="Seat3.png" style="width:10.3vw;height:14vh;"><label>' + arrayOfPlayers[myArrayNumber] + '</label>';
                 document.getElementById('seatTaken6').innerHTML = '<img src="Seat3.png" style="width:10.3vw;height:14vh;">';
                 document.getElementById('playerName6').innerHTML = '<label>' + arrayOfPlayers[myArrayNumber] + '</label>';
+                $("#totalChips6").css("visibility", "visible");
+                $("#playerName6").css("visibility", "visible");
+                $("#bets6").css("visibility", "visible");
 
                 $("#seatTaken6").css("visibility", "visible");
                 //alert(numOfPlayers);
@@ -169,6 +184,9 @@ $(document).ready(function () {
                             //document.getElementById('seatTaken' + (j + 1)).innerHTML = '<img src="Seat2.png" style="width:10.3vw;height:14vh;"><label>' + arrayOfPlayers[i] + '</label>';
                             document.getElementById('seatTaken' + (j + 1)).innerHTML = '<img src="Seat2.png" style="width:10.3vw;height:14vh;">';
                             document.getElementById('playerName' + (j + 1)).innerHTML = '<label>' + arrayOfPlayers[i] + '</label>';
+                            $("#totalChips" + (j + 1)).css("visibility", "visible");
+                            $("#playerName" + (j + 1)).css("visibility", "visible");
+                            $("#bets" + (j + 1)).css("visibility", "visible");
                             $(seat).css("visibility", "visible");
                             
                         }
@@ -292,6 +310,28 @@ $(document).ready(function () {
            $("#card5").css("visibility", "hidden");
            $("#card6").css("visibility", "hidden");
            $("#card7").css("visibility", "hidden");
+           $("#totalChips1").css("visibility", "hidden");
+           $("#totalChips2").css("visibility", "hidden");
+           $("#totalChips3").css("visibility", "hidden");
+           $("#totalChips4").css("visibility", "hidden");
+           $("#totalChips5").css("visibility", "hidden");
+           $("#totalChips6").css("visibility", "hidden");
+           $("#totalChips7").css("visibility", "hidden");
+           $("#bets1").css("visibility", "hidden");
+           $("#bets2").css("visibility", "hidden");
+           $("#bets3").css("visibility", "hidden");
+           $("#bets4").css("visibility", "hidden");
+           $("#bets5").css("visibility", "hidden");
+           $("#bets6").css("visibility", "hidden");
+           $("#bets7").css("visibility", "hidden");
+           $("#playerName1").css("visibility", "hidden");
+           $("#playerName2").css("visibility", "hidden");
+           $("#playerName3").css("visibility", "hidden");
+           $("#playerName4").css("visibility", "hidden");
+           $("#playerName5").css("visibility", "hidden");
+           $("#playerName6").css("visibility", "hidden");
+           $("#playerName7").css("visibility", "hidden");
+           $("#checkButton").css("visibility", "hidden");
            $("#callButton").css("visibility", "hidden");
            for (var i = 1; i <= 7; i++) {
                (function (index) {
@@ -381,7 +421,7 @@ $(document).ready(function () {
 
     $("#raiseButton").click(function () {
         //$("p").hide();
-        if (document.getElementById('raise').value > 49) {
+        if (document.getElementById('raise').value > 49 && document.getElementById('raise').value <= (myChips-biggestBet+myCurrentBet)) {
             pokerOperations.sendRaiseButtonClicked(document.getElementById('raise').value);
             $("#checkButton").css("visibility", "hidden");
             $("#callButton").css("visibility", "hidden");
@@ -398,7 +438,7 @@ $(document).ready(function () {
 
     $("#callButton").click(function () {
         //$("p").hide();
-        pokerOperations.callFoldButtonClicked();
+        pokerOperations.sendCallButtonClicked();
         $("#callButton").css("visibility", "hidden");
         $("#checkButton").css("visibility", "hidden");
 

@@ -73,9 +73,10 @@ private:
 	int smallBlind = 25;
 	int totalChips = 0;										//perperson
 	int totalPot = 0;										//totalPot for a game
+	int winnersPot = 0;
 	int currentBiggestBet = 0;
 	
-	int numberOfPlayersToStartGame = 2;
+	int numberOfPlayersToStartGame = 4;
 
 	bool bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
 	bool dealerBet = false;										//determines whether the dealer has already bet or not - used after preflop

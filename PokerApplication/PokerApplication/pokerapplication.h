@@ -50,7 +50,7 @@ public:
 	Q_INVOKABLE void sendCheckButtonClicked();							//send a message to server notifying of check button clicked
 	Q_INVOKABLE void sendRaiseButtonClicked(int);							//send a message to server notifying of raise button clicked
 	Q_INVOKABLE void sendFoldButtonClicked();							//send a message to server notifying of fold button clicked
-	Q_INVOKABLE void callFoldButtonClicked();							//send a message to server notifying of call button clicked
+	Q_INVOKABLE void sendCallButtonClicked();							//send a message to server notifying of call button clicked
 	Q_INVOKABLE void delay(int);
 
 private:
