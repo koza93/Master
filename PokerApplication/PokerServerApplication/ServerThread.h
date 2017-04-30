@@ -43,6 +43,7 @@ signals:
 	void updateNumberClients(int num);
 	void updateCurrentPlayer(int num);
 	void updateOnWin(int);
+	void updateOnDraw(int, QVector<int>);
 	void updateAllPlayers(QVector<int>, QVector<int>, int bb, int sb);		//vector containing thread numbers of all players , thread number of big blind, thread number of small blind
 	void updateNoOfPlayersToStartGame(int num);		//updates number of players needed to start a game
 	void updateOnGameEnd(int);						//(winner)
@@ -72,7 +73,7 @@ private:
 	QVector<int>  allPlayerNumbers;
 	QVector<int>  allPlayersTC;						//array of totalchips correcponding to allPlayerNumbers
 	QVector<int>  playersToUpdate;					//array of players that need to updated at a time
-
+	QVector<int>  drawers;
 	bool betMade = false;
 	bool betRaised = false;
 	bool betCalled = false;
@@ -85,6 +86,7 @@ private:
 	bool isTurnFinished = false;
 	bool isRiverFinished = false;
 	bool isWinner = false;
+	bool isDraw = false;
 
 	bool handDealt = false;
 	bool flopDealt = false;

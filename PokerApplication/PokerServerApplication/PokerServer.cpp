@@ -45,6 +45,7 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	connect(this, SIGNAL(updateNoOfPlayersToStartGame(int)), thread, SLOT(updateNoOfPlayersToStartGame(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCurrentPlayer(int)), thread, SLOT(updateCurrentPlayer(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateOnWin(int)), thread, SLOT(updateOnWin(int)), Qt::QueuedConnection);
+	connect(this, SIGNAL(updateOnDraw(int, QVector<int>)), thread, SLOT(updateOnDraw(int, QVector<int>)), Qt::DirectConnection);
 	connect(this, SIGNAL(updateAllPlayers(QVector<int>, QVector<int>, int, int)), thread, SLOT(updateAllPlayers(QVector<int>, QVector<int>, int, int)), Qt::DirectConnection);
 	connect(this, SIGNAL(changeGameStage(int, QVector<int>)), thread, SLOT(changeGameStage(int, QVector<int>)), Qt::DirectConnection);
 	connect(this, SIGNAL(updateBetMade(bool)), thread, SLOT(updateBetMade(bool)), Qt::QueuedConnection);
@@ -530,9 +531,14 @@ void PokerServer::checkForWinner()
 					numberOfClientsInPlay++;
 			}
 			listOfPlayers[winnerParams[i + 2].toInt()]->setTotalChips(listOfPlayers[winnerParams[i + 2].toInt()]->getTotalChips() + (totalPot / winnerParams[1].toInt()));
-			emit updateOnWin(listOfPlayers[winnerParams[i+2].toInt()]->getSocketDescriptor());  //ChangeThatToDraw
+			arrayOfDrawers.append(listOfPlayers[winnerParams[i + 2].toInt()]->getSocketDescriptor());
+			//emit updateOnDraw();  //ChangeThatToDraw
 		}
+		qDebug() << "About to update DRAAAAAAAAAAW";
+		emit updateOnDraw(winnerParams[1].toInt(), arrayOfDrawers );  //ChangeThatToDraw
+		arrayOfDrawers.clear();
 	}
+	
 	else if (winnerParams[0] == "Win")
 	{
 		qDebug() << "Win - Player no:" << listOfPlayers[winnerParams[1].toInt()]->getSocketDescriptor();
@@ -1216,12 +1222,14 @@ QString PokerServer::compareCards()
 	else
 	{
 		QString drawers = "Draw";
+		drawers += ":" + QString::number(pWBHsearch3.size());
 		//some draw code in a loop
 		for (int i = 0; i < pWBHsearch3.size(); i++)
 		{
 			qDebug() << "Player: " << pWBHsearch3[i] << "has drew";
 			drawers += ":" + QString::number(pWBHsearch3[i]);
 		}
+		qDebug() << drawers;
 		return drawers;				//returns draw : number of drawers : drawer x : drawer x1 ....    ie Draw:3:1:2:3  Draw:2:5:2
 	}
 }

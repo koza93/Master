@@ -83,6 +83,25 @@ $(document).ready(function () {
         
         });
 
+        pokerOperations.notifyOnDraw.connect(function (flag, message) {
+
+            $(".theBetting").css("visibility", "hidden");
+            if (flag  === 1)
+                document.getElementById('totalPot').innerHTML = '<label>' + "I " + message+ '</label>';
+            else
+                document.getElementById('totalPot').innerHTML = '<label>' + "You lose " + message + '</label>';
+            for (var i = 6; i <= 7; i++) {
+                (function (index) {
+                    setTimeout(function () {
+                        var cards = "card" + index;
+                        document.getElementById(cards).innerHTML = '<img src="Cards.png" style="width:7.8vw;height:15vh;">';
+                        $(cards).css("visibility", "visible");
+                    }, i * 10);
+                })(i);
+            }
+
+        });
+
         pokerOperations.notifyOnUpdate.connect(function (playerID, chips, totalChips, totalPot) {
 
             

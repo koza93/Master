@@ -32,6 +32,7 @@ public:
 	QList<Player*> listOfPlayers;
 	QVector<int> allPlayersVector;
 	QVector<int> allPlayersChipsVector;
+	QVector<int> arrayOfDrawers;
 signals:
 	void updateNoOfPlayersToStartGame(int num);				//notify socket threads how many players to start game;
 	void updateBetMade(bool);								//notify socket threads bet was made (int canCheck) 0 for call, 1 for check
@@ -43,7 +44,7 @@ signals:
 	void updateAllPlayers(QVector<int>, QVector<int>, int, int);			// notify socket of all thread numbers
 	void updateNoClients(int num);							//notify socket threads of number of clients
 	void updateOnWin(int);									//notify socket of a winner
-	void updateOnDraw(int numofdrawers, QVector<int> thedrawesIds, QString whatitWonWith);
+	void updateOnDraw(int numofdrawers, QVector<int> thedrawesIds);
 	void changeGameStage(int num, QVector<int>);			//notify socket that game stage changed ie pre flop to flop. 0 for pre flop, 1 for flop ....to change from pre flop to flop send 1
 	void updateOnGameEnd(int winner);
 

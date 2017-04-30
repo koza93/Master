@@ -25,6 +25,7 @@ signals :
 	void notifyOnUpdate(int, int, int, int);							//notify js
 	void notifyOnBet(int, int, int, int);								//notify js
 	void notifyOnWin(int);												//notify js
+	void notifyOnDraw(int flag, QString drw);
 	void notifyOnEndGame(int);											//notify js
 
 	void error(QTcpSocket::SocketError error);

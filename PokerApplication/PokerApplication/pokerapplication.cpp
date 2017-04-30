@@ -204,6 +204,20 @@ void PokerApplication::readyRead()
 			notifyOnWin(dataList[1].toInt());
 
 		}
+		if (dataList[0] == "Draw") {
+			qDebug() << "Draw:" + dataList[1].toInt();
+			QString drw = "DRAW:";
+			int flag = 0;
+			for (int i = 0; i < dataList[1].toInt(); i++) {
+				drw += " " + QString::number(dataList[i + 2].toInt());
+				if (dataList[i + 2].toInt() == myClientNumber) {
+					flag = 1;
+				}
+			}
+			//need to fill in the table for players in js before showing the cards
+			notifyOnDraw(flag, drw);
+			flag = 0;
+		}
 		else if (dataList[0] == "EndGame") {
 			qDebug() << "EndGame:" + dataList[1].toInt();
 			//need to fill in the table for players in js before showing the cards

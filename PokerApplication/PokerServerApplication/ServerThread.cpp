@@ -258,11 +258,16 @@ void ServerThread::updateCardsOnTable(Card** cards)
 
 void ServerThread::updateOnWin(int win)
 {
-
 	winner = win;
 	qDebug() << "winner is: " << winner;
-	isWinner = true;
-	
+	isWinner = true;	
+}
+
+void ServerThread::updateOnDraw(int win, QVector<int> pToUpdate)
+{
+	drawers = pToUpdate;
+	qDebug() << "DRAAAAAAAAAAAAAW";
+	isDraw = true;
 }
 
 void ServerThread::updateOnGameEnd(int win)
@@ -335,6 +340,17 @@ void ServerThread::checkInputsFromServer()
 
 		qDebug() << "Win:" << QString::number(winner);
 		sendMessage("Win:" + QString::number(winner));
+		delay(8000);
+	}
+	if (isDraw == true) {
+		isDraw = false;
+		QString drawStr = "Draw:"+ QString::number(drawers.size());
+		for (int i = 0; i < drawers.size(); i++) {	
+			drawStr += ":"+ QString::number(drawers.at(i));
+		}
+		qDebug() << drawStr;
+		drawers.clear();
+		sendMessage(drawStr);
 		delay(8000);
 	}
 	if (allPlayersUpdated == true) {
