@@ -11,6 +11,7 @@
 #include <QTConcurrent/QtConcurrentRun>
 #include <QList>
 #include <QtSql>
+#define N 2;
 class PokerServer : public QTcpServer
 {
 	Q_OBJECT
@@ -77,7 +78,7 @@ private:
 	int winnersPot = 0;
 	int currentBiggestBet = 0;
 	
-	int numberOfPlayersToStartGame = 4;
+	int numberOfPlayersToStartGame = N;
 
 	bool bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
 	bool dealerBet = false;										//determines whether the dealer has already bet or not - used after preflop

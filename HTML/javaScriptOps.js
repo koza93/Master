@@ -2,6 +2,7 @@ $(document).ready(function () {
     var myChips = 0;
     var biggestBet = 0;
     var myCurrentBet = 0;
+    var user;
     new QWebChannel(qt.webChannelTransport, function (channel) {
        // now you retrieve your object
         window.pokerOperations = channel.objects.pokerOperations;
@@ -68,7 +69,7 @@ $(document).ready(function () {
 
             $(".theBetting").css("visibility", "hidden");
             if(winnerID == myPlayerNumber)
-                document.getElementById('totalPot').innerHTML = '<label>' + "I win :D :D" + '</label>';
+                document.getElementById('totalPot').innerHTML = '<label>' + "You win!" + '</label>';
             else
                 document.getElementById('totalPot').innerHTML = '<label>' + "Winner is:" + winnerID + '</label>';
             for (var i = 6; i <= 7; i++) {
@@ -164,7 +165,7 @@ $(document).ready(function () {
         //notify of total chips
         pokerOperations.notifyOnAssignId.connect(function (returnValue) {
             if (returnValue === true) {
-
+                $("#totalPot").css("visibility", "visible");
                 for (var i = 0; i < numOfPlayers; i++) {
 
                     if (myPlayerNumber == arrayOfPlayers[i]) {
@@ -352,6 +353,8 @@ $(document).ready(function () {
            $("#playerName7").css("visibility", "hidden");
            $("#checkButton").css("visibility", "hidden");
            $("#callButton").css("visibility", "hidden");
+           $("#totalPot").css("visibility", "hidden");
+           
            for (var i = 1; i <= 7; i++) {
                (function (index) {
                    setTimeout(function () {
@@ -371,7 +374,7 @@ $(document).ready(function () {
                document.getElementById('winningMsg').innerHTML = '<label>' +'You have won, congratulations'+ '</label>';
            }
            else {
-               document.getElementById('winningMsg').innerHTML = '<label>' + 'Player: ' +winner +'has won, we wish you better luck next time :)'+ '</label>';
+               document.getElementById('winningMsg').innerHTML = '<label>' + 'Player ' +winner +' has won, we wish you better luck next time!'+ '</label>';
            }
 
            numOfPlayers=0;
@@ -397,10 +400,16 @@ $(document).ready(function () {
 
             if(isPasswordValid === true)
             {
+                user = username;
                 //pokerOperations.webChannelTest("valid password");
                 $(".login").css("visibility","hidden");
                 $(".joinTable").css("visibility", "visible");
-                $("#userNameLabel").text("Welcome "+username + ". What do you want to do?");
+                $("#warning").text("");
+                $("#userNameLabel").text("Welcome " + username + ".");
+                $("#userNameLabel2").text("What do you want to do?");
+            }
+            else {
+                $("#warning").text("Invalid username/password or user logged in already...");
             }
         });
     });
@@ -426,8 +435,37 @@ $(document).ready(function () {
 
     });
 
+    $("#statsBtn").click(function () {
+        //$("p").hide();
+        pokerOperations.webChannelTest("clicked stat button");
+        // pokerOperations.checkUserAndPassword(username, password);
+        pokerOperations.getStats(user, function (tString) {
+            $(".joinTable").css("visibility", "hidden");
+            $(".theStats").css("visibility", "visible");
+            $("#stats").text(tString);
+
+        });
+
+    });
+
+    $("#chipsBtn").click(function () {
+        //$("p").hide();
+        pokerOperations.webChannelTest("clicked chips button");
+        // pokerOperations.checkUserAndPassword(username, password);
+        pokerOperations.addChips(user, function () {
+        });
+
+    });
+
+
     $("#exitButton").click(function () {
         $(".winScreen").css("visibility", "hidden");
+        $(".joinTable").css("visibility", "visible");
+
+    });
+
+    $("#exitButton2").click(function () {
+        $(".theStats").css("visibility", "hidden");
         $(".joinTable").css("visibility", "visible");
 
     });

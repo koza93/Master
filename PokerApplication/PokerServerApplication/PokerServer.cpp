@@ -337,7 +337,7 @@ void PokerServer::incrementCurrentPlayer()
 
 						//update the db
 						QSqlQuery query;
-						QString str = "UPDATE poker_database.users SET totalWins = totalWins+1, totalChips = totalChips + " + QString::number(500*numberOfClients);
+						QString str = "UPDATE poker_database.users SET totalWins = totalWins+1, totalChips = totalChips + " + QString::number(500*numberOfClients)
 							+ "   WHERE currentID = " + QString::number(listOfPlayers[i]->getSocketDescriptor());
 						qDebug() << str;
 						query.prepare(str);
@@ -363,7 +363,7 @@ void PokerServer::incrementCurrentPlayer()
 				totalPot = 0;
 				winnersPot = 0;										//totalPot for a game
 				currentBiggestBet = 0;
-				numberOfPlayersToStartGame = 4;
+				numberOfPlayersToStartGame = N;
 				currentPlayer = 0;
 				listOfPlayers.clear();								//TODO need to make a signal from current thread that already finished the game that will connect to server and add itself to list 
 				allPlayersVector.clear();							//up

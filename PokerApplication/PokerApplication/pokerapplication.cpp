@@ -73,12 +73,66 @@ Q_INVOKABLE bool PokerApplication::validateUserAndPassword(QString usr, QString 
 
 Q_INVOKABLE bool PokerApplication::joinTable()
 {
-	if (connectToServer()) {
-		qDebug() << "connected to server";
-		return true;
+	QSqlQuery query;
+	int chip = 0;
+	if (query.exec("SELECT totalChips FROM poker_database.users WHERE user = '" + currentUsername + "' "))
+	{
+		while (query.next()) {
+			chip = query.value(0).toInt();
+		}
 	}
 
+	if (chip >= 500) {
+		if (connectToServer()) {
+			qDebug() << "connected to server";
+			return true;
+		}
+	}
+	
 	return false;
+}
+
+Q_INVOKABLE QString PokerApplication::getStats(QString usr) {
+	qDebug() << usr;
+	QString tString= "Total Games: ";
+	QSqlQuery query;
+	if (query.exec("SELECT totalGames FROM poker_database.users WHERE user = '" + usr + "' "))
+	{
+		while (query.next()) {
+			tString += query.value(0).toString() + "    Total Wins: ";
+		}
+	}
+	if (query.exec("SELECT totalWins FROM poker_database.users WHERE user = '" + usr + "' "))
+	{
+		while (query.next()) {
+			tString += query.value(0).toString() + "    Total Chips: ";
+		}
+	}
+	if (query.exec("SELECT totalChips FROM poker_database.users WHERE user = '" + usr + "' "))
+	{
+		while (query.next()) {
+			tString += query.value(0).toString();
+		}
+	}
+	qDebug() << tString;
+	return tString;
+}
+
+Q_INVOKABLE void PokerApplication::addChips(QString usr) {
+	QSqlQuery query;
+	int chip = 0;
+	if (query.exec("SELECT totalChips FROM poker_database.users WHERE user = '" + usr + "' "))
+	{
+		while (query.next()) {
+			chip = query.value(0).toInt();
+		}
+	}
+
+	if (chip < 500) {
+		query.prepare("UPDATE poker_database.users SET totalChips = 1000 WHERE user = '" + usr + "'");
+		query.exec();
+	}
+
 }
 
 Q_INVOKABLE bool PokerApplication::connectToServer()

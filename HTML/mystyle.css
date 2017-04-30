@@ -1,5 +1,7 @@
 body {
-    background-color: lightblue;
+    background-image: url("background1.png");
+    background-repeat: no-repeat;
+    background-size: 100% 150vh;
     position: fixed;
     width: 200vw;
     height: 150vh;
@@ -12,12 +14,74 @@ div {
 }
 
 .login{
+    font-family: Verdana, Verdana, Geneva, Tahoma, sans-serif , sans-serif;
+    font-size: 2.8vh;
+    font-weight: bold;
+    color: black;
     visibility: visible;/*visiblr by default*/
+    position: absolute;
+    top: 58vh;
+    width: 40vw;
+    height: 30vh;
+    margin-left: 33vw;
+}
+#myUsername{
+    margin-left: 1vw;
+    width: 21vw;
+    height: 2.7vh;
+}
+
+#myPassword{
+    margin-left: 2.6vw;
+    width: 21vw;
+    height: 2.7vh;
+}
+
+#loginBtn{
+    margin-left: 15vw;
+    width: 9vw;
+    height: 4vh;
 }
 
 .joinTable{
+    font-family: Verdana, Verdana, Geneva, Tahoma, sans-serif , sans-serif;
+    font-size: 2.8vh;
+    font-weight: bold;
+    color: black;
+    position: absolute;
+    top: 58vh;
+    width: 40vw;
+    height: 30vh;
+    margin-left: 33vw;
     visibility: hidden;/*hidden by default*/
 }
+
+#chipsBtn{
+    margin-left: 2.6vw;
+    width: 21vw;
+    height: 3.2vh;
+}
+#statsBtn{
+    margin-left: 2.6vw;
+    width: 21vw;
+    height: 3.2vh;
+}
+
+#joinBtn{
+    margin-left: 2.6vw;
+    width: 21vw;
+    height: 3.2vh;
+}
+
+#userNameLabel{
+    margin-left: 0vw;
+}
+
+#userNameLabel2{
+    margin-left: 0vw;
+}
+
+
 
 .theTable{
    
@@ -57,6 +121,28 @@ div {
     margin-left: 27vw;
     top: 58vh;
     position:absolute;
+}
+
+.theStats{
+     font-family: Verdana, Verdana, Geneva, Tahoma, sans-serif , sans-serif;
+    font-size: 2.8vh;
+    font-weight: bold;
+    color: black;
+    position: absolute;
+    top: 68vh;
+    width: 80vw;
+    height: 15vh;
+    margin-left: 16vw;
+    visibility: hidden;/*hidden by default*/
+    border: blue dashed 1px;
+}
+
+#exitButton2{
+    position: absolute;
+    height: 5vh;
+    width:15vw;
+    margin-left: 0vw;
+    top:5vh;
 }
 
 .theGameplay{
@@ -152,7 +238,15 @@ div {
 
 
 .console{
-   
+    font-family: Verdana, Verdana, Geneva, Tahoma, sans-serif , sans-serif;
+    font-size: 2.8vh;
+    font-weight: bold;
+    color: white;
+    text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;  
     margin-left:5vw;
     top: 5vh;
     width:90vw;
@@ -206,14 +300,14 @@ div {
 
 #totalChips1{
     position: absolute;
-    width:10vw;
+    width:15vw;
     top: 26vh;
     left: 2.4vw;
 }
 
 #totalChips2{
     position: absolute;
-    width:10vw;
+    width:15vw;
     top: 1.5vh;
     left: 12.5vw;
 }
@@ -221,28 +315,28 @@ div {
 
 #totalChips3{
     position: absolute;
-    width:10vw;
+    width:15vw;
     top: -6vh;
     left: 37.5vw;
 }
 
 #totalChips4{
     position: absolute;
-    width:10vw;
+    width:15vw;
     top: 1.5vh;
     left: 62.5vw;
 }
 
 #totalChips5{
     position: absolute;
-    width:10vw;
+    width:15vw;
     top: 26vh;
     left: 72.5vw;
 }
 
 #totalChips6{
     position: absolute;
-    width:10vw;
+    width:15vw;
     top: 64vh;
     left: 39.5vw;
 }
@@ -297,45 +391,66 @@ div {
     left: 38.5vw;
 }
 .theBetting{
-   
+    font-family: Verdana, Verdana, Geneva, Tahoma, sans-serif , sans-serif;
+    font-size: 2.8vh;
     margin-left:60vw;
     top: 80vh;
     width:30vw;
     height:10vh;
     position: absolute;
     visibility:hidden;/*hidden by default*/    
+    border: solid blue 2px;
 }
 #foldButton{
-    margin-left: 2vw;
+    height: 4vh;
+    width:7vw;
     top:0;
 }
 
 #checkButton{
+    height: 4vh;
+    width:7vw;
     margin-left: 0vw;
     top:0;
 }
 
 #raiseButton{
+    height: 4vh;
+    width:7vw;
     margin-left: 2vw;
     top:0;
 }
 #callButton{
+    height: 4vh;
+    width:7vw;
     margin-left: 2vw;
     top:0;
 }
 #raise{
-    width:5vw;
+    height: 4vh;
+    width:7vw;
     margin-left: 2vw;
     top:0;
 }
 
 .winScreen{
-   
+    font-family: Verdana, Verdana, Geneva, Tahoma, sans-serif , sans-serif;
+    font-size: 3.4vh;
+    font-weight: bold;
     margin-left:20vw;
-    top: 20vh;
-    width:20vw;
-    height:20vh;
+    top: 60vh;
+    width:60vw;
+    height:30vh;
     position: absolute;
     visibility:hidden;/*hidden by default*/    
+  
 }
+#exitButton{
+    position: absolute;
+    height: 7vh;
+    width:15vw;
+    margin-left: 0vw;
+    top:10vh;
+}
+
 
