@@ -65,13 +65,13 @@ $(document).ready(function () {
             }
         });
 
-        pokerOperations.notifyOnWin.connect(function (winnerID) {
+        pokerOperations.notifyOnWin.connect(function (winnerID, combination) {
 
             $(".theBetting").css("visibility", "hidden");
             if(winnerID == myPlayerNumber)
-                document.getElementById('totalPot').innerHTML = '<label>' + "You win!" + '</label>';
+                document.getElementById('totalPot').innerHTML = '<label>' + "You win! " + combination +'</label>';
             else
-                document.getElementById('totalPot').innerHTML = '<label>' + "Winner is:" + winnerID + '</label>';
+                document.getElementById('totalPot').innerHTML = '<label>' + "Winner is:" + winnerID +" " + combination+'</label>';
             for (var i = 6; i <= 7; i++) {
                 (function (index) {
                     setTimeout(function () {

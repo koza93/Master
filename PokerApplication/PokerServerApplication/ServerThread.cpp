@@ -256,9 +256,10 @@ void ServerThread::updateCardsOnTable(Card** cards)
 	}
 }
 
-void ServerThread::updateOnWin(int win)
+void ServerThread::updateOnWin(int win, QString hand)
 {
 	winner = win;
+	winnersHand = hand;
 	qDebug() << "winner is: " << winner;
 	isWinner = true;	
 }
@@ -338,8 +339,8 @@ void ServerThread::checkInputsFromServer()
 	if (isWinner == true) {
 		isWinner = false;
 
-		qDebug() << "Win:" << QString::number(winner);
-		sendMessage("Win:" + QString::number(winner));
+		qDebug() << "Win:" << QString::number(winner) <<":"<< winnersHand;
+		sendMessage("Win:" + QString::number(winner) + ":" + winnersHand);
 		delay(8000);
 	}
 	if (isDraw == true) {

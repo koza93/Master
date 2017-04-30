@@ -88,7 +88,6 @@ Q_INVOKABLE bool PokerApplication::joinTable()
 			return true;
 		}
 	}
-	
 	return false;
 }
 
@@ -255,7 +254,7 @@ void PokerApplication::readyRead()
 		if (dataList[0] == "Win") {
 			qDebug() << "Win:" + dataList[1].toInt();
 			//need to fill in the table for players in js before showing the cards
-			notifyOnWin(dataList[1].toInt());
+			notifyOnWin(dataList[1].toInt(), dataList[2]);
 
 		}
 		if (dataList[0] == "Draw") {

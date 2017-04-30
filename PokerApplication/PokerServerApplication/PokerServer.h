@@ -44,7 +44,7 @@ signals:
 	void updateCurrentPlayer(int num);						//notify socket threads of current player
 	void updateAllPlayers(QVector<int>, QVector<int>, int, int);			// notify socket of all thread numbers
 	void updateNoClients(int num);							//notify socket threads of number of clients
-	void updateOnWin(int);									//notify socket of a winner
+	void updateOnWin(int, QString);									//notify socket of a winner
 	void updateOnDraw(int numofdrawers, QVector<int> thedrawesIds);
 	void changeGameStage(int num, QVector<int>);			//notify socket that game stage changed ie pre flop to flop. 0 for pre flop, 1 for flop ....to change from pre flop to flop send 1
 	void updateOnGameEnd(int winner);

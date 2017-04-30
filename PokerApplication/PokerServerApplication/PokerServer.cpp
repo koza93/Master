@@ -44,7 +44,7 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	connect(this, SIGNAL(updateNoClients(int)), thread, SLOT(updateNumberClients(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateNoOfPlayersToStartGame(int)), thread, SLOT(updateNoOfPlayersToStartGame(int)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateCurrentPlayer(int)), thread, SLOT(updateCurrentPlayer(int)), Qt::QueuedConnection);
-	connect(this, SIGNAL(updateOnWin(int)), thread, SLOT(updateOnWin(int)), Qt::QueuedConnection);
+	connect(this, SIGNAL(updateOnWin(int, QString)), thread, SLOT(updateOnWin(int, QString)), Qt::QueuedConnection);
 	connect(this, SIGNAL(updateOnDraw(int, QVector<int>)), thread, SLOT(updateOnDraw(int, QVector<int>)), Qt::DirectConnection);
 	connect(this, SIGNAL(updateAllPlayers(QVector<int>, QVector<int>, int, int)), thread, SLOT(updateAllPlayers(QVector<int>, QVector<int>, int, int)), Qt::DirectConnection);
 	connect(this, SIGNAL(changeGameStage(int, QVector<int>)), thread, SLOT(changeGameStage(int, QVector<int>)), Qt::DirectConnection);
@@ -541,10 +541,10 @@ void PokerServer::checkForWinner()
 	
 	else if (winnerParams[0] == "Win")
 	{
-		qDebug() << "Win - Player no:" << listOfPlayers[winnerParams[1].toInt()]->getSocketDescriptor();
+		qDebug() << "Win - Player no:" << listOfPlayers[winnerParams[1].toInt()]->getSocketDescriptor() << "  " << winnerParams[2];
 		
 		listOfPlayers[winnerParams[1].toInt()]->setTotalChips(listOfPlayers[winnerParams[1].toInt()]->getTotalChips() + totalPot);
-		emit updateOnWin(listOfPlayers[winnerParams[1].toInt()]->getSocketDescriptor());
+		emit updateOnWin(listOfPlayers[winnerParams[1].toInt()]->getSocketDescriptor(), winnerParams[2]);
 	}
 }
 
@@ -1113,7 +1113,7 @@ QString PokerServer::compareCards()
 	if (playersWithBestHand.size() == 1) {
 		qDebug() << "Win:Player: " << playersWithBestHand[0] << "has highest rank: " << listOfHands[playersWithBestHand[0]].at(0);
 		
-		return "Win:"+ QString::number(playersWithBestHand[0]);
+		return "Win:"+ QString::number(playersWithBestHand[0]) + ":" + listOfHands[playersWithBestHand[0]].at(0);
 	}
 
 	//from here on im looking on the high cards ie 33384 > 2229X
@@ -1149,7 +1149,7 @@ QString PokerServer::compareCards()
 	//if only one player has the highest card at search 1 he wins the hand
 	if (pWBHsearch1.size() == 1) {
 		qDebug() << "Win:Player: " << pWBHsearch1[0] << "has highest rank: " << listOfHands[pWBHsearch1[0]].at(0) << ":"<< listOfHands[pWBHsearch1[0]].at(1);
-		return "Win:" + QString::number(pWBHsearch1[0]);
+		return "Win:" + QString::number(pWBHsearch1[0]) + ":" + listOfHands[pWBHsearch1[0]].at(0);
 	}
 
 	//round 2
@@ -1184,7 +1184,7 @@ QString PokerServer::compareCards()
 	//if only one player has the highest card at search 1 he wins the hand
 	if (pWBHsearch2.size() == 1) {
 		qDebug() << "Win:Player: " << pWBHsearch2[0] << "has highest rank: " << listOfHands[pWBHsearch2[0]].at(0) << ":" << listOfHands[pWBHsearch2[0]].at(1) << listOfHands[pWBHsearch2[0]].at(2);
-		return "Win:" + QString::number(pWBHsearch2[0]);
+		return "Win:" + QString::number(pWBHsearch2[0]) + ":" + listOfHands[pWBHsearch2[0]].at(0) ;
 	}
 
 	//round 3
@@ -1216,7 +1216,8 @@ QString PokerServer::compareCards()
 	//if only one player has the highest card at search 1 he wins the hand
 	if (pWBHsearch3.size() == 1) {
 		qDebug() << "Win:Player: " << pWBHsearch3[0] << "has highest rank: " << listOfHands[pWBHsearch3[0]].at(0) << ":" << listOfHands[pWBHsearch3[0]].at(1) << listOfHands[pWBHsearch3[0]].at(2) << listOfHands[pWBHsearch3[0]].at(3);
-		return "Win:" + QString::number(pWBHsearch3[0]);
+
+		return "Win:" + QString::number(pWBHsearch3[0])+ ":" + listOfHands[pWBHsearch3[0]].at(0);
 	}
 
 	else
