@@ -13,7 +13,6 @@ PokerServer::PokerServer(QObject * parent) : QTcpServer(parent)
 
 void PokerServer::StartServer()
 {
-
 	if (!this->listen(QHostAddress::Any, 1234))
 	{
 		qDebug() << "Failed to start server";
@@ -23,20 +22,14 @@ void PokerServer::StartServer()
 		qDebug() << "Server started, waiting for connection...";
 		PokerServer s;
 		if (AcquireConnectionDb() == true)
-			qDebug() << "connected to db";
+			qDebug() << "Connected to db";
 	}
-
-	/*
-	gameThread = new GameThread(numberOfClients, this);
-	connect(gameThread, SIGNAL(finished()), gameThread, SLOT(deleteLater()));
-	gameThread->start();*/
 }
 
 void PokerServer::incomingConnection(qintptr  socketDescriptor)
 {
 	qDebug() << socketDescriptor << "Connecting...";
 	ServerThread *thread = new ServerThread(socketDescriptor, this);
-	//clientThreads.append(thread);
 	connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
 	connect(thread, &ServerThread::finished, thread, &QObject::deleteLater);
 	connect(this, SIGNAL(updateHand(Card*, Card*,int)), thread, SLOT(updateMyCurrentHand(Card*, Card*,int)), Qt::QueuedConnection);
@@ -61,7 +54,7 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 	connect(thread, SIGNAL(notifyOnCheck(int)), this, SLOT(detectCheckWasMade(int)), Qt::QueuedConnection);
 	connect(thread, SIGNAL(notifyOnFold(int)), this, SLOT(detectFoldWasMade(int)), Qt::QueuedConnection);
 
-	qDebug() << "main" << QThread::currentThreadId();
+	qDebug() << "Main Thread ID: " << QThread::currentThreadId();
 	thread->start();
 	listOfPlayers.append(new Player(socketDescriptor, 500));
 	numberOfClients++;
@@ -89,16 +82,8 @@ void PokerServer::incomingConnection(qintptr  socketDescriptor)
 			smallBlindCounter = 1;
 			bigBlindCounter = 2;
 		}
-		initBlinds();
-		
-		//if i dont fit it elswhere i am going to send a signal containing the deck to all the threads and they can deal with it from there
-		//UPDATE:: gonna need to deal the cards first then send the signal
-		//UPDATE2:: so i think i gonna need to send a signal from each thread that will say its ready to receive the cards and then send the card with another signal
+		initBlinds();	
 	}
-
-
-
-	//emit updateNoClients(numberOfClients);
 	qDebug() << "Number of clients: " << numberOfClients;
 }
 
@@ -123,21 +108,12 @@ void PokerServer::incrementCurrentPlayer()
 		globalI = 0;
 	}
 
-	/* Gonna try and connect folded and 0 players together
-	while (listOfPlayers[globalI]->isFolded())
-	{
-		globalI++;
-		if (globalI >= listOfPlayers.length())
-		{
-			globalI = 0;
-		}
-	}*/
-
 	int allPlayersHaveNoChips = 0;
-	//TODO trying to ommit a player who has 0 chips
+
+	//Ommits player with 0 chips
 	while (listOfPlayers[globalI]->getTotalChips() <= 0 || listOfPlayers[globalI]->isFolded())
 	{
-		qDebug() << "player" << listOfPlayers[globalI] << "has 0chips";
+		qDebug() << "Player" << listOfPlayers[globalI] << "has 0 chips";
 		globalI++;
 		if (globalI >= listOfPlayers.length())
 		{
@@ -157,9 +133,8 @@ void PokerServer::incrementCurrentPlayer()
 		{
 			if (listOfPlayers[i]->getCurrentBet() < currentBiggestBet || !listOfPlayers[i]->isBet() ) {	//makes sure all players have bet
 				allBetsMadeFlag = false;
-				qDebug() << "SettingFlagLow Player: " << listOfPlayers[i]->getSocketDescriptor();
 			}
-			qDebug() << "The current bet for each player is: PLayer: " << listOfPlayers[i]->getSocketDescriptor() << " Bet: " << listOfPlayers[i]->getCurrentBet();
+			qDebug() << "The current bet for each player is: Player: " << listOfPlayers[i]->getSocketDescriptor() << " Bet: " << listOfPlayers[i]->getCurrentBet();
 		}
 	}
 
@@ -177,7 +152,6 @@ void PokerServer::incrementCurrentPlayer()
 
 	if (allBetsMadeFlag)//if (allBetsMadeFlag && (bigBlindBet || dealerBet))//only if all bets are equal and the player on the big blind has already played change the game stage
 	{
-		qDebug() << "Flag0";
 		previousGlobalGameStage = globalGameStage;
 		globalGameStage++;
 		currentBiggestBet = 0;							//reset current biggestBet to 0
@@ -195,7 +169,6 @@ void PokerServer::incrementCurrentPlayer()
 				allPlayersHaveNoChips = 0;
 				while (listOfPlayers[globalI]->isFolded() || listOfPlayers[globalI]->getTotalChips() <= 0)
 				{
-					qDebug() << "Flag1";
 					globalI++;
 					if (globalI >= listOfPlayers.length())
 					{
@@ -206,9 +179,8 @@ void PokerServer::incrementCurrentPlayer()
 						break;
 					}
 				}
-				qDebug() << "Flag2";
 				currentPlayer = listOfPlayers[globalI]->getSocketDescriptor();
-				if(globalGameStage != 4)	//TODO
+				if(globalGameStage != 4)	
 				emit updateCurrentPlayer(currentPlayer);
 			}
 		}
@@ -235,13 +207,13 @@ void PokerServer::incrementCurrentPlayer()
 		emit changeGameStage(globalGameStage, playersToUpdate);
 		if (globalGameStage == 4)
 		{
-			checkForWinner();							//TODO gonna have to figure out what happens when everyone folds
+			checkForWinner();							
 
 			delay(2000);
 			//delay is also implemented after each Win message from the thread, so the user has time to read of who won the game
 			
 
-			//		The code that is going to reset the hand and start the next one
+			//The code that is going to reset the hand and start the next one
 			//if no one has all the chips
 			globalGameStage = 0;		//resetGlobalGameStage
 			winnersPot = totalPot;
@@ -253,7 +225,6 @@ void PokerServer::incrementCurrentPlayer()
 				listOfPlayers[i]->setAsSmallBlind(false);
 				listOfPlayers[i]->setAsBet(false);
 
-				//TODO make an if statement checking if player has enough chips to play
 				listOfPlayers[i]->setAsFolded(false);
 				//gonna set dealer as false here as well
 				listOfPlayers[i]->setAsDealer(false);	
@@ -275,23 +246,22 @@ void PokerServer::incrementCurrentPlayer()
 			//get a player that has less= 0 chips of game
 
 			if (!isGameFinished) {
-				//TODO possibly increament dealer again if player has less= zero chips
-				dealerCounter++;													//increment dealer counter
-				if (dealerCounter == numberOfClients) { dealerCounter = 0; }		//just in case
+				dealerCounter++;														//increment dealer counter
+				if (dealerCounter == numberOfClients) { dealerCounter = 0; }		
 				while (listOfPlayers[dealerCounter]->getTotalChips() <= 0) {
 					dealerCounter++;
 					if (dealerCounter == numberOfClients) { dealerCounter = 0; }
 				}
 
 				smallBlindCounter++;													//increment dealer counter
-				if (smallBlindCounter == numberOfClients) { smallBlindCounter = 0; }		//just in case
+				if (smallBlindCounter == numberOfClients) { smallBlindCounter = 0; }		
 				while (listOfPlayers[smallBlindCounter]->getTotalChips() <= 0) {
 					smallBlindCounter++;
 					if (smallBlindCounter == numberOfClients) { smallBlindCounter = 0; }
 				}
 
-				bigBlindCounter++;													//increment dealer counter
-				if (bigBlindCounter == numberOfClients) { bigBlindCounter = 0; }		//just in case
+				bigBlindCounter++;														//increment dealer counter
+				if (bigBlindCounter == numberOfClients) { bigBlindCounter = 0; }		
 				while (listOfPlayers[bigBlindCounter]->getTotalChips() <= 0) {
 					bigBlindCounter++;
 					if (bigBlindCounter == numberOfClients) { bigBlindCounter = 0; }
@@ -301,33 +271,32 @@ void PokerServer::incrementCurrentPlayer()
 					smallBlindCounter = dealerCounter;
 
 					bigBlindCounter = smallBlindCounter + 1;
-					if (bigBlindCounter == numberOfClients) { bigBlindCounter = 0; }		//just in case
+					if (bigBlindCounter == numberOfClients) { bigBlindCounter = 0; }		
 					while (listOfPlayers[bigBlindCounter]->getTotalChips() <= 0) {
 						bigBlindCounter++;
 						if (bigBlindCounter == numberOfClients) { bigBlindCounter = 0; }
 					}
 				}
 
-				listOfPlayers[dealerCounter]->setAsDealer(true);					//set the next player as dealer
-				qDebug() << "!!Player " << listOfPlayers[dealerCounter]->getSocketDescriptor() << " is the dealer";
-				//delay(10000);
+				listOfPlayers[dealerCounter]->setAsDealer(true);						//set the next player as dealer
+				qDebug() << "Player " << listOfPlayers[dealerCounter]->getSocketDescriptor() << " is the dealer";
+				
 
 				for (int i = 0; i < listOfPlayers.length(); i++)
 				{
-					if (!listOfPlayers[i]->isFolded())		//TODO check if i should have not updated if folded EDIT all set to false above
+					if (!listOfPlayers[i]->isFolded())		
 					{
 						playersToUpdate.append(listOfPlayers[i]->getSocketDescriptor());
 					}
 				}
-				emit changeGameStage(globalGameStage, playersToUpdate);								//change the global stage
+				emit changeGameStage(globalGameStage, playersToUpdate);					//change the global stage
 				initBlinds();
 			}
 
 			else {
-				//TODO some bug regarding array
 				for (int i = 0; i < listOfPlayers.length(); i++)
 				{
-					qDebug() << i;
+					
 					if (listOfPlayers[i]->isInGame() == true)		//check which player is the total winner
 					{
 						qDebug() << "The game is finished - winner: " << listOfPlayers[i]->getSocketDescriptor();
@@ -339,7 +308,6 @@ void PokerServer::incrementCurrentPlayer()
 						QSqlQuery query;
 						QString str = "UPDATE poker_database.users SET totalWins = totalWins+1, totalChips = totalChips + " + QString::number(500*numberOfClients)
 							+ "   WHERE currentID = " + QString::number(listOfPlayers[i]->getSocketDescriptor());
-						qDebug() << str;
 						query.prepare(str);
 						query.exec();
 						query.prepare("UPDATE poker_database.users SET currentID = 0 WHERE ID < 1000" );
@@ -365,7 +333,7 @@ void PokerServer::incrementCurrentPlayer()
 				currentBiggestBet = 0;
 				numberOfPlayersToStartGame = N;
 				currentPlayer = 0;
-				listOfPlayers.clear();								//TODO need to make a signal from current thread that already finished the game that will connect to server and add itself to list 
+				listOfPlayers.clear();								
 				allPlayersVector.clear();							//up
 				allPlayersChipsVector.clear();
 				bigBlindBet = false;									//determines whether the big blind has already bet or not - used during preflop
@@ -378,7 +346,6 @@ void PokerServer::incrementCurrentPlayer()
 		}
 		else {
 			if (allPlayersHaveNoChips == numberOfClients || allPlayersHaveNoChips == (numberOfClients - 1)) {
-				qDebug() << "Flag3";
 				delay(2000);
 				incrementCurrentPlayer();
 			}
@@ -389,7 +356,6 @@ void PokerServer::incrementCurrentPlayer()
 						allPlayersHaveNoChips++;
 				}
 				if (allPlayersHaveNoChips == numberOfClients || allPlayersHaveNoChips == (numberOfClients - 1)) {
-					qDebug() << "Flag3";
 					delay(2000);
 					incrementCurrentPlayer();
 				}
@@ -519,23 +485,19 @@ void PokerServer::checkForWinner()
 		listOfPlayers[i]->setBestCards(createCardTable(all7OnCards));
 	}
 
-	QString winner = compareCards();  //TODO figure out how to exclude folded players
-	//qDebug() << winner;
+	QString winner = compareCards();  
 
 	QStringList winnerParams = winner.split(":");
 	if (winnerParams[0] == "Draw")
 	{
 		for (int i = 0; i < winnerParams[1].toInt(); i++) {
-			//qDebug() << "Draw - Player no:" << listOfPlayers[winnerParams[i + 2].toInt()]->getSocketDescriptor();
 			if (listOfPlayers[winnerParams[i + 2].toInt()]->getTotalChips() <= 0) {		
 					numberOfClientsInPlay++;
 			}
 			listOfPlayers[winnerParams[i + 2].toInt()]->setTotalChips(listOfPlayers[winnerParams[i + 2].toInt()]->getTotalChips() + (totalPot / winnerParams[1].toInt()));
 			arrayOfDrawers.append(listOfPlayers[winnerParams[i + 2].toInt()]->getSocketDescriptor());
-			//emit updateOnDraw();  //ChangeThatToDraw
 		}
-		qDebug() << "About to update DRAAAAAAAAAAW";
-		emit updateOnDraw(winnerParams[1].toInt(), arrayOfDrawers );  //ChangeThatToDraw
+		emit updateOnDraw(winnerParams[1].toInt(), arrayOfDrawers );  
 		arrayOfDrawers.clear();
 	}
 	
@@ -550,9 +512,6 @@ void PokerServer::checkForWinner()
 
 QString PokerServer::createCardTable(Card ** cards)
 {
-	//TODO need to send the suits or figures with the winning combination, need to figure ot straights and change thios function so it returns stuff
-
-	//QList<QString> table;
 	QMap<QString, int> figureMap;
 	QMap<QString, int> suitMap;
 	QMap<int, QString> cardMap;
@@ -561,6 +520,7 @@ QString PokerServer::createCardTable(Card ** cards)
 	QString highCard = "";
 	int pair = 0;
 	int triple = 0;
+
 	//key, value for figures
 	figureMap["2"] = 0;
 	figureMap["3"] = 0;
@@ -642,7 +602,8 @@ QString PokerServer::createCardTable(Card ** cards)
 	QMapIterator<QString, int> itF(figureMap);
 	QMapIterator<int, QString> itC(cardMap);
 	QMapIterator<QString, int> itS(suitMap);
-	/*
+
+	/*Testing
 	qDebug() << "figure values";
 	foreach(int figure, figureMap) {
 		qDebug() << figure;
@@ -663,7 +624,6 @@ QString PokerServer::createCardTable(Card ** cards)
 				suitOrFigure += itC.value();
 			else 
 				suitOrFigure += ":" + itC.value();
-		
 		}
 		
 		else
@@ -679,7 +639,6 @@ QString PokerServer::createCardTable(Card ** cards)
 	QString colour;
 	int strColCards = 0;
 	
-	//need to figure what to do with more than 5cards
 	if (straightCards > 4) {
 		while (itS.hasNext()) {
 			itS.next();
@@ -694,7 +653,7 @@ QString PokerServer::createCardTable(Card ** cards)
 		{	
 			for (int i = 0; i < 7; i++)
 			{
-				if (QString(cards[i]->getSuit()) == colour)     //this if statement is just a quick fix
+				if (QString(cards[i]->getSuit()) == colour)    
 				{
 					if (QString(cards[i]->getFigure()) == coloredCards[j])
 					{
@@ -808,16 +767,6 @@ QString PokerServer::createCardTable(Card ** cards)
 		else if (pair > 0)
 			return "FullHouse:" + suitOrFigure + ":N";
 	}
-		
-	//Flush//////////////////////////////////////////////
-	/*while (itS.hasNext()) {
-		itS.next();
-		if (itS.value() >= 5) {
-			return "Flush:" +itS.key();
-		}
-	}
-	itS.toFront();*/
-
 
 	//Flush v2///////////////////////////////////////////
 	
@@ -1019,8 +968,6 @@ QString PokerServer::createCardTable(Card ** cards)
 	}
 	return "HighCard:" + suitOrFigure + ":" + oldHighCard + ":" + olderHighCard ;
 	
-	/////////////////////////////////
-	//qDebug() << "***************";
 }
 
 QString PokerServer::compareCards()
@@ -1062,7 +1009,7 @@ QString PokerServer::compareCards()
 	//get the highest rank out of each player put the parameters into stringlist and put the string list into a qlist
 	for (int i = 0; i < listOfPlayers.size(); i++)
 	{
-		if (!listOfPlayers[i]->isFolded() && listOfPlayers[i]->isInGame())		//TODO gonna have to make isStill in game for player
+		if (!listOfPlayers[i]->isFolded() && listOfPlayers[i]->isInGame())		
 		{
 			QStringList rankList;
 			qDebug() << listOfPlayers[i]->getBestCards();
@@ -1079,6 +1026,7 @@ QString PokerServer::compareCards()
 			
 	}
 
+	
 	//debug
 	for (int i = 0; i < listOfHands.length(); i++)
 	{
@@ -1102,7 +1050,6 @@ QString PokerServer::compareCards()
 	{
 		if (ranks[listOfHands[i].at(0)] == highestRank) {
 			playersWithBestHand.append(i);
-			//qDebug() << "Player: " << i << "appended";
 		}
 	}
 
@@ -1138,7 +1085,6 @@ QString PokerServer::compareCards()
 	{
 		if (highCard[listOfHands[playersWithBestHand[i]].at(1)] == highestRank) {
 			pWBHsearch1.append(playersWithBestHand[i]);
-			//qDebug() << "Player: " << i << "appended search1";
 		}
 	}
 
@@ -1174,7 +1120,6 @@ QString PokerServer::compareCards()
 	{
 		if (highCard[listOfHands[pWBHsearch1[i]].at(2)] == highestRank) {
 			pWBHsearch2.append(pWBHsearch1[i]);
-			//qDebug() << "Player: " << i << "appended search2";
 		}
 	}
 
@@ -1209,7 +1154,6 @@ QString PokerServer::compareCards()
 	{
 		if (highCard[listOfHands[pWBHsearch2[i]].at(3)] == highestRank) {
 			pWBHsearch3.append(pWBHsearch2[i]);
-			//qDebug() << "Player: " << i << "appended search 3";
 		}
 	}
 
@@ -1244,7 +1188,6 @@ void PokerServer::initBlinds()
 		//set big blind and small blind
 		if (numberOfClientsInPlay < 3 && numberOfClientsInPlay > 1)
 		{
-			//TODO will need to change the big blind to next person every time
 			listOfPlayers[smallBlindCounter]->setCurrentBet(smallBlind);
 			listOfPlayers[smallBlindCounter]->setAsSmallBlind(true);
 			listOfPlayers[smallBlindCounter]->setTotalChips(listOfPlayers[smallBlindCounter]->getTotalChips() - smallBlind);
@@ -1254,7 +1197,6 @@ void PokerServer::initBlinds()
 			currentBiggestBet = bigBlind;
 			currentPlayer = listOfPlayers[dealerCounter]->getSocketDescriptor();
 			globalI = dealerCounter;										//globalI is used to increment and identifier of the player in the list of players
-			qDebug() << "!!her1";
 		}
 		else if (numberOfClientsInPlay == 3)
 		{
@@ -1283,10 +1225,9 @@ void PokerServer::initBlinds()
 			listOfPlayers[bigBlindCounter]->setTotalChips(listOfPlayers[bigBlindCounter]->getTotalChips() - bigBlind);
 			currentBiggestBet = bigBlind;
 			currentPlayer = listOfPlayers[dealerCounter]->getSocketDescriptor();
-			globalI = dealerCounter;  //TODO
-			qDebug() << "!!her2";
+			globalI = dealerCounter;  
 		}
-		//TODO gonna have to figure out the whole else with players getting 0 chips
+		
 		else
 		{
 			listOfPlayers[smallBlindCounter]->setCurrentBet(smallBlind);
@@ -1297,7 +1238,7 @@ void PokerServer::initBlinds()
 			listOfPlayers[bigBlindCounter]->setTotalChips(listOfPlayers[bigBlindCounter]->getTotalChips() - bigBlind);
 			currentBiggestBet = bigBlind;
 
-			if ((bigBlindCounter + 1) != numberOfClients)   //TODO perhaps work on this if statement
+			if ((bigBlindCounter + 1) != numberOfClients)   
 			{
 				currentPlayer = listOfPlayers[(bigBlindCounter + 1)]->getSocketDescriptor();
 				globalI = (bigBlindCounter + 1);
@@ -1307,12 +1248,12 @@ void PokerServer::initBlinds()
 				currentPlayer = listOfPlayers[0]->getSocketDescriptor();
 				globalI = 0;
 			}
-			qDebug() << "!!her3";
+			
 
 		}
 		totalPot += bigBlind;
 		totalPot += smallBlind;
-		qDebug() << "totalPot = " << totalPot;
+		qDebug() << "TotalPot = " << totalPot;
 
 		for (int i = 0; i < allPlayersVector.size(); i++) {
 			allPlayersChipsVector.append(listOfPlayers[i]->getTotalChips());
@@ -1337,7 +1278,7 @@ void PokerServer::initBlinds()
 	
 	emit updateNoOfPlayersToStartGame(numberOfPlayersToStartGame);
 	emit updateNoClients(numberOfClients);
-	qDebug() << "!!dealer message goes to : " << currentPlayer;
+	qDebug() << "Dealer message goes to : " << currentPlayer;
 	emit updateCurrentPlayer(currentPlayer);
 	emit updateAllPlayers(allPlayersVector, allPlayersChipsVector,bbThreadId, sbThreadId);
 	emit updateBetMade(false);	//will not allow the first player to play check
@@ -1355,7 +1296,6 @@ bool PokerServer::AcquireConnectionDb()
 	db = QSqlDatabase::addDatabase("QMYSQL");
 	db.setHostName("127.0.0.1");
 	db.setPort(3306);
-	//db.setDatabaseName("DRIVER = { Microsoft Access Driver(*.mdb) }; FIL = { MS Access }; DBQ = myaccessfile.mdb");
 	db.setUserName("root");
 	db.setPassword("root");
 	bool ok = db.open();

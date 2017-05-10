@@ -7,10 +7,6 @@ ServerThread::ServerThread(int ID, QObject * parent) :QThread(parent)
 	this->socketDescriptor = ID;
 	this->setParent(parent);
 
-
-	//create thread instead of concurrent thread?
-	//gThread = gameThread;
-
 }
 
 void ServerThread::run()
@@ -22,12 +18,10 @@ void ServerThread::run()
 		emit error(socket->error());
 		return;
 	}
-	qDebug() << "run" << QThread::currentThreadId();
+	qDebug() << "Run thread ID: " << QThread::currentThreadId();
 	connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()), Qt::DirectConnection);
 	connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()), Qt::DirectConnection);
 	connect(this, SIGNAL(doSignal()), this, SLOT(getSignal()), Qt::DirectConnection);
-	
-	//connect(this, SIGNAL(sendMessageSig()), this, SLOT(sendMessage()), Qt::DirectConnection);
 
 	qDebug() << "Client connected:" << this->socketDescriptor;
 
@@ -65,13 +59,11 @@ void ServerThread::run()
 		while (!isRiverFinished) {
 			checkInputsFromServer();
 		}
-		//isGameFinished = true;
 	}
 
 	//if game finished notify the clients
 	sendMessage("EndGame:" + QString::number(winner));			//winner ID
 	delay(100);
-	qDebug() << "I have got out of while isGameFinished loop";
 	this->quit();
 	exec();
 }
@@ -105,7 +97,6 @@ void ServerThread::readyRead()
 			{
 				betAmount = arrayOfData[2].toInt();
 				emit notifyOnRaise(this->socketDescriptor, betAmount);
-				qDebug() << betAmount;
 				delay(200);
 				emit notifyOnBet();
 			}
@@ -131,12 +122,6 @@ void ServerThread::readyRead()
 			emit notifyOnBet();
 		}
 	}
-
-	/*/
-	else
-		socket->write("Recived:" + Data);
-	qDebug() <<"readready"<< QThread::currentThreadId();
-	*/
 }
 
 void ServerThread::disconnected()
@@ -150,20 +135,14 @@ void ServerThread::sendMessage(QString msg) {
 	QByteArray threadNumber = QByteArray::number(this->socketDescriptor, 10);
 	
 	qDebug() << "Message from: " << this->socketDescriptor << ";;" << socket->socketDescriptor() << "The msg: " <<msg;
-	//socket->setParent(this);
 	QByteArray message = msg.toStdString().c_str();
-	//QByteArray Data = socket->readAll();
 	socket->write(message);
 
 }
 void ServerThread::updateNumberClients(int num) {
 	numberOfClients = num;
-	qDebug() << "numClients" << QThread::currentThreadId();
 	qDebug() << "Thread:" << this->socketDescriptor << "Number of clients: " << numberOfClients;
-	//if (numberOfClients > 0)
-	//{
-	//	//emit sendMessage();
-	//}
+	
 }
 
 void ServerThread::updateNoOfPlayersToStartGame(int num) {
@@ -172,7 +151,6 @@ void ServerThread::updateNoOfPlayersToStartGame(int num) {
 
 void ServerThread::updateCurrentPlayer(int num) {
 	currentPlayer = num;
-	qDebug() << "numClients" << QThread::currentThreadId();
 	qDebug() << "Thread:" << this->socketDescriptor << "Current player: " << currentPlayer;
 	
 }
@@ -247,7 +225,6 @@ void ServerThread::updateMyCurrentHand(Card* c1, Card* c2, int sc)
 
 void ServerThread::updateCardsOnTable(Card** cards)
 {
-	//cardsOnTable[0] = cards[0];
 	qDebug() << "CardsOnTable";
 	for (int i = 0; i < 5; i++)
 	{
@@ -260,21 +237,21 @@ void ServerThread::updateOnWin(int win, QString hand)
 {
 	winner = win;
 	winnersHand = hand;
-	qDebug() << "winner is: " << winner;
+	qDebug() << "Winner is: " << winner;
 	isWinner = true;	
 }
 
 void ServerThread::updateOnDraw(int win, QVector<int> pToUpdate)
 {
 	drawers = pToUpdate;
-	qDebug() << "DRAAAAAAAAAAAAAW";
+	qDebug() << "DRAW";
 	isDraw = true;
 }
 
 void ServerThread::updateOnGameEnd(int win)
 {
 	winner = win;
-	qDebug() << "allwinner is: " << winner;
+	qDebug() << "Allwinner is: " << winner;
 	isGameFinished = true;
 }
 
@@ -293,8 +270,7 @@ void ServerThread::getSignal() {
 
 void ServerThread::changeGameStage(int gameStage, QVector<int> pToUpdate)
 {  //1 = preflop, 2= flop ...
-	qDebug() << "got the SIGNALLLLLLLLL";
-
+	
 	playersToUpdate = pToUpdate;
 
 	//0 will happen on a reset from server
@@ -312,28 +288,22 @@ void ServerThread::changeGameStage(int gameStage, QVector<int> pToUpdate)
 	if (gameStage == 1) {
 		flopDealt = true;
 		isPreFlopFinished = true;
-		qDebug() << "changed prefloppppp";
 	}
 	if (gameStage == 2) {
 		turnDealt = true;
 		isFlopFinished = true;
-		qDebug() << "changed flop";
 	}
 	if (gameStage == 3) {
 		riverDealt = true;
 		isTurnFinished = true;
-		qDebug() << "changed turn";
 	}
 	if (gameStage == 4) {
 		isRiverFinished = true;
-		qDebug() << "changed river";
 	}
-	//sendMessage("GameStarted:" + QString::number(numberOfClients) + ":" + QString::number(currentPlayer));
 }
 
 void ServerThread::checkInputsFromServer()
 {
-	//TODO - At some stage put all those if statements into a function
 	delay(500);
 
 	if (isWinner == true) {
@@ -493,12 +463,6 @@ void ServerThread::checkInputsFromServer()
 		msg = "Refresh:Now"; //second argument is a dummy argument
 		sendMessage(msg);
 		delay(200);
-
-		/*
-		for (int i = 0; i < playersToUpdate.size(); ++i) {
-			sendMessage("Update:" + QString::number(playersToUpdate.at(i)) + ":0");
-			delay(200);
-		}*/
 	}
 }
 

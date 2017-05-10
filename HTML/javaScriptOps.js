@@ -428,7 +428,7 @@ $(document).ready(function () {
                 $("#userNameLabel").css("visibility", "hidden");
                 $(".console").css("visibility", "visible");
                 $(".theTable").css("visibility", "visible");
-                alert("joined Table waiting for players");
+                //alert("joined Table waiting for players");
 
             }
         });
